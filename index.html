@@ -301,9 +301,26 @@ function story(){modal('🌳 Grandma Willow’s Story','<p>“Imagine you have 1
 window.storyChoice=(choice)=>{state.stars++;refresh();toast(choice==='save'?'Wise planning! Saving can help with bigger dreams.':'Enjoying a treat is fun — it helps to check what you have left!');story()};
 function styleMenu(){modal('🎀 Make your character yours','<p>Pick a look for your little adventurer.</p><label>Dress colour</label><input id="dressColor" type="color" value="'+custom.dress+'"><label>Hair colour</label><input id="hairColor" type="color" value="'+custom.hair+'"><label>Skin tone</label><select id="skinColor"><option value="#f2c7a6">Peach</option><option value="#d89a70">Warm tan</option><option value="#9b6347">Brown</option><option value="#f5ddc4">Light cream</option></select><label>Head accessory</label><select id="hatStyle"><option value="none">No accessory</option><option value="flower">Flower crown</option><option value="crown">Golden crown</option></select><div class="actions"><button class="primary" onclick="window.applyStyle()">Wear this look</button></div>',[])}
 window.applyStyle=()=>{custom.dress=$('dressColor').value;custom.hair=$('hairColor').value;custom.skin=$('skinColor').value;custom.hat=$('hatStyle').value;player.group.children.forEach(o=>{if(o.material&&o.material.color){if(o.geometry.type==='CapsuleGeometry'&&o.position.y>1&&o.position.y<1.5)o.material.color.set(custom.dress);if(o.geometry.type==='SphereGeometry'&&o.position.y>1.8&&o.position.z<.15)o.material.color.set(custom.hair);}});toast('A new look! Your adventure, your style.');closeModal()};
-function interact(){if($('modal').style.display==='flex')return;let p=player.group.position;let choices=[...villagers.map(v=>({x:v.x,z:v.z,dist:Math.hypot(v.x-p.x,v.z-p.z),v})),...resources.filter(o=>o.userData.active).map(o=>({x:o.position.x,z:o.position.z,dist:Math.hypot(o.position.x-p.x,o.position.z-p.z),o}))].sort((a,b)=>a.dist-b.dist);if(!choices.length||choices[0].dist>3.1){toast('Walk closer to a person or sparkle to interact.');return}let c=choices[0];if(c.o){const kind=c.o.userData.kind;c.o.userData.active=false;scene.remove(c.o);if(kind==='star'){state.stars++;state.coins+=2;toast('Shiny treasure! +1 star and 2 coins.')}else{state[kind==='apple'?'apples':kind==='flower'?'flowers':kind]++;toast(({apple:'Apple collected!',wood:'Wood collected!',flower:'Flower collected!',cloth:'Cloth collected!'})[kind]+' Added to your basket.')}refresh();return}
-switch(c.v.kind){case'market':market();break;case'craft':crafting();break;case'story':story();break;case'home':home();break}}
-window.addEventListener('keydown',e=>{const k=e.key.toLowerCase();keys[k]=true;if((k==='e'||e.key==='Enter')&&!e.repeat){e.preventDefault();interact()}if(e.key==='Escape')closeModal()});window.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+let interactionBusy=false;
+function interact(){
+ if(interactionBusy||$('modal').style.display==='flex')return;
+ interactionBusy=true;
+ try{
+  const p=player.group.position;
+  const choices=[];
+  for(const v of villagers){if(Number.isFinite(v.x)&&Number.isFinite(v.z))choices.push({x:v.x,z:v.z,dist:Math.hypot(v.x-p.x,v.z-p.z),v});}
+  for(const o of resources){if(o&&o.userData&&o.userData.active&&o.position)choices.push({x:o.position.x,z:o.position.z,dist:Math.hypot(o.position.x-p.x,o.position.z-p.z),o});}
+  choices.sort((a,b)=>a.dist-b.dist);
+  if(!choices.length||choices[0].dist>3.1){toast('Walk closer to a person or sparkle to interact.');return}
+  const c=choices[0];
+  if(c.o){const kind=c.o.userData.kind;c.o.userData.active=false;scene.remove(c.o);if(kind==='star'){state.stars++;state.coins+=2;toast('Shiny treasure! +1 star and 2 coins.')}else{const key=kind==='apple'?'apples':kind==='flower'?'flowers':kind;if(Object.prototype.hasOwnProperty.call(state,key))state[key]++;toast(({apple:'Apple collected!',wood:'Wood collected!',flower:'Flower collected!',cloth:'Cloth collected!'})[kind]||'Collected!');}refresh();return}
+  switch(c.v.kind){case'market':market();break;case'craft':crafting();break;case'story':story();break;case'home':home();break;default:toast('Nothing to do here just yet.')}
+ }catch(err){console.error('Interaction error:',err);toast('Oops! Try again in a moment.')}finally{interactionBusy=false}
+}
+let interactionKeyDown=false;
+window.addEventListener('keydown',e=>{const k=e.key.toLowerCase();keys[k]=true;if(k==='e'||e.key==='Enter'){if(!interactionKeyDown){interactionKeyDown=true;e.preventDefault();interact()}}if(e.key==='Escape')closeModal()});
+window.addEventListener('keyup',e=>{const k=e.key.toLowerCase();keys[k]=false;if(k==='e'||e.key==='Enter')interactionKeyDown=false});
+window.addEventListener('blur',()=>{interactionKeyDown=false;interactionBusy=false});
 $('interaction').onclick=interact;$('customBtn').onclick=styleMenu;$('modal').addEventListener('click',e=>{if(e.target===$('modal'))closeModal()});
 const keys={};let joy={x:0,z:0};const pad=$('touchpad'),stick=$('stick');let dragging=false;
 pad.addEventListener('pointerdown',e=>{dragging=true;pad.setPointerCapture(e.pointerId);moveStick(e)});pad.addEventListener('pointermove',e=>{if(dragging)moveStick(e)});function moveStick(e){let r=pad.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=e.clientX-cx,dy=e.clientY-cy,len=Math.hypot(dx,dy),max=40;if(len>max){dx=dx/len*max;dy=dy/len*max}stick.style.left=(41+dx)+'px';stick.style.top=(41+dy)+'px';joy.x=dx/max;joy.z=dy/max}function release(){dragging=false;joy={x:0,z:0};stick.style.left='41px';stick.style.top='41px'}pad.addEventListener('pointerup',release);pad.addEventListener('pointercancel',release);
