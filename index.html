@@ -49,7 +49,49 @@ box(home,4.7,.12,1.9,material('#9a704f'),0,.04,3.8);box(home,4.4,.1,1.65,materia
 const targets=[];function makePerson(name,kind,x,z,shirt,hair){let g=new T.Group();g.position.set(x,0,z);scene.add(g);const top=material(shirt),hairMat=material(hair),skin=material(kind==='story'?'#e8bd9a':'#f1c6a4');let torso=ball(g,.34,top,0,1.08,0);torso.scale.set(1.05,1.2,.78);let tunic=box(g,.5,.48,.38,top,0,.92,0);ball(g,.28,skin,0,1.83,0);let cap=ball(g,.31,hairMat,0,1.99,-.055);cap.scale.set(1.05,.65,1);for(let side of [-1,1]){ball(g,.035,mats.dark,side*.105,1.84,.245);ball(g,.012,mats.white,side*.115,1.855,.27);ball(g,.09,hairMat,side*.22,1.8,.03)}box(g,.16,.5,.17,top,-.36,1.05,0);box(g,.16,.5,.17,top,.36,1.05,0);box(g,.17,.48,.2,material('#7d6489'),-.14,.3,.02);box(g,.17,.48,.2,material('#7d6489'),.14,.3,.02);box(g,.45,.09, .4,material('#f0c96a'),0,.68,.02);if(kind==='market'){let apron=box(g,.38,.5,.035,material('#fff0dc'),0,.91,.22);box(g,.16,.09,.04,material('#df9bb5'),0,1.02,.245);ball(g,.07,material('#e4b66b'),.24,1.37,.02)}else if(kind==='craft'){let hat=cone(g,.34,.45,material('#a58ad8'),0,2.22,0,5);ball(g,.08,material('#f3d56e'),0,2.45,0);box(g,.08,.4,.08,material('#9a6b4c'),.43,1.05,.02)}else{let bun=ball(g,.13,hairMat,0,2.13,-.13);ball(g,.07,material('#f6d88c'),.28,1.88,.02);box(g,.5,.07,.4,material('#e9c5c8'),0,.68,.02)}targets.push({name,kind,x,z,obj:g,active:true});return g}makePerson('Uncle Peter','market',2,-8,'#e8a4ba','#6e4a36');makePerson('Qhaliff','craft',-5,10,'#a995dc','#80523d');makePerson('Nisha','story',-16,2,'#a9c6a0','#c4c2ca');targets.push({name:"Natasha's Home",kind:'home',x:-10,z:-8,obj:home,active:true});
 // All money is stored as integer cents to avoid floating-point currency errors.
 const state={coins:1200,apples:0,flowers:0,wood:0,cloth:0,stars:0};
-const money=cents=>'S$'+(cents/100).toLocaleString('en-SG',{minimumFractionDigits:2,maximumFractionDigits:2});let pickups=[];function pickup(kind,x,z){let color={apple:'#e95f69',flower:'#f4a6c5',wood:'#a96f4f',cloth:'#9f8add',star:'#f5c94f'}[kind],o=kind==='star'?addMesh(new T.OctahedronGeometry(.34),material(color)):ball(scene,.23,material(color),x,.45,z);o.position.set(x,kind==='star'?.8:.45,z);if(kind==='wood')o.scale.set(1.5,.45,.6);if(kind==='flower'){ball(o,.01,material('#f5c94f'),0,0,0)}const t={name:({apple:'Shiny apple',flower:'Pretty flower',wood:'Wood bundle',cloth:'Magic cloth',star:'Star treasure'})[kind],kind,x,z,obj:o,active:true,respawnAt:0};targets.push(t);pickups.push(t)}for(let [x,z] of [[-15,-11],[-14,-3],[-18,1],[-7,9],[-4,12],[12,-1],[15,5],[19,-4]])pickup('apple',x,z);for(let [x,z] of [[-14,-11],[-20,8],[20,14],[-9,16],[5,-20],[3,11]])pickup('flower',x,z);for(let [x,z] of [[-18,-5],[17,-11],[6,15],[-3,-20],[20,3]])pickup('star',x,z);pickup('wood',-12,12);pickup('wood',7,15);pickup('cloth',12,-11);pickup('cloth',-12,10);
+const money=cents=>'S$'+(cents/100).toLocaleString('en-SG',{minimumFractionDigits:2,maximumFractionDigits:2});let pickups=[];function pickup(kind,x,z){
+ const o=new T.Group();o.position.set(x,kind==='star'?.8:.45,z);scene.add(o);
+ const mat=(c)=>material(c);
+ const cyl=(rTop,rBottom,h,m,px,py,pz,segments=8)=>{const q=addMesh(new T.CylinderGeometry(rTop,rBottom,h,segments),m,o);q.position.set(px,py,pz);return q};
+ if(kind==='apple'){
+  // Glossy, recognisable apple with a gentle lobed crown, stem and leaf.
+  const red=mat('#e94355'),redLight=mat('#ff7c83'),green=mat('#65b96b'),brown=mat('#79503b');
+  const body=ball(o,.24,red,0,0,0);body.scale.set(1,.94,.95);
+  ball(o,.105,redLight,-.105,.105,.13).scale.set(1,.6,.7);
+  ball(o,.085,red,.105,.17,-.015).scale.set(1,.72,.85);
+  cyl(.025,.035,.13,brown,0,.225,0,7).rotation.z=-.15;
+  const leaf=addMesh(new T.SphereGeometry(.085,8,6),green,o);leaf.position.set(.075,.26,0);leaf.scale.set(1.7,.22,.65);leaf.rotation.z=.35;
+ }else if(kind==='flower'){
+  // Green stem, two leaves, five overlapping petals and a golden centre.
+  const stem=mat('#4f9f61'),leaf=mat('#6dc578'),center=mat('#ffd34f');
+  cyl(.025,.035,.34,stem,0,-.07,0,7);
+  for(let side of [-1,1]){const l=addMesh(new T.SphereGeometry(.075,8,6),leaf,o);l.position.set(side*.075,-.12,.005);l.scale.set(1.7,.25,.65);l.rotation.z=side*.45}
+  const petalMats=['#ff8fc2','#ffb2d4','#f57fb4'];
+  for(let i=0;i<6;i++){const a=i*Math.PI/3;const petal=ball(o,.095,mat(petalMats[i%petalMats.length]),Math.cos(a)*.105,.13,Math.sin(a)*.105);petal.scale.set(1.05,.48,.82)}
+  ball(o,.075,center,0,.16,0);ball(o,.025,mat('#fff0a0'),-.018,.19,.025);
+ }else if(kind==='wood'){
+  // Three little cut logs bundled together with visible end-grain rings.
+  const bark=mat('#9a603e'),barkLight=mat('#c58a5d'),end=mat('#f0c99b'),ring=mat('#b47b4f'),tie=mat('#f0d17c');
+  for(let i=0;i<3;i++){const px=(i-1)*.115,py=(i===1?.04:-.035);const log=cyl(.085,.085,.48,bark,px,py,0,9);log.rotation.z=Math.PI/2;const cap=addMesh(new T.CircleGeometry(.075,9),end,o);cap.position.set(px+.245,py,0);cap.rotation.y=Math.PI/2;const inner=addMesh(new T.CircleGeometry(.047,9),ring,o);inner.position.set(px+.247,py,0);inner.rotation.y=Math.PI/2;const cap2=addMesh(new T.CircleGeometry(.075,9),end,o);cap2.position.set(px-.245,py,0);cap2.rotation.y=-Math.PI/2;const inner2=addMesh(new T.CircleGeometry(.047,9),ring,o);inner2.position.set(px-.247,py,0);inner2.rotation.y=-Math.PI/2;}
+  const band=box(o,.09,.23,.24,tie,0,.025,.01);band.rotation.z=.08;
+  for(let zed of [-.1,.11])box(o,.055,.18,.035,barkLight,0,.02,zed);
+ }else if(kind==='cloth'){
+  // Folded lavender fabric with layered folds, hem stitching and a ribbon.
+  const purple=mat('#a58add'),light=mat('#d9c8ff'),shadow=mat('#8467bf'),thread=mat('#fff0d7'),ribbon=mat('#f5a8d0');
+  const base=box(o,.43,.12,.32,shadow,0,-.02,0);base.rotation.y=-.12;
+  const fold1=box(o,.38,.10,.28,purple,-.015,.055,.015);fold1.rotation.y=.12;
+  const fold2=box(o,.29,.09,.24,light,.025,.12,-.005);fold2.rotation.y=-.16;
+  const fold3=box(o,.20,.075,.19,purple,-.015,.18,-.015);fold3.rotation.y=.08;
+  for(let i=0;i<5;i++){const stitch=box(o,.025,.012,.018,thread,-.15+i*.07,.112,.157);stitch.rotation.y=-.12}
+  box(o,.075,.025,.34,ribbon,.08,.075,.015).rotation.y=.2;
+  ball(o,.055,ribbon,.08,.1,.02);
+ }else if(kind==='star'){
+  const gold=mat('#ffd34f'),light=mat('#fff1a1'),orange=mat('#f6a83e');
+  const star=addMesh(new T.OctahedronGeometry(.28,0),gold,o);star.scale.set(1,1.15,.55);
+  ball(o,.09,light,0,.015,.15);for(let i=0;i<4;i++){const sparkle=addMesh(new T.OctahedronGeometry(.055,0),i%2?light:orange,o);const a=i*Math.PI/2;sparkle.position.set(Math.cos(a)*.34,.02+Math.sin(a)*.08,Math.sin(a)*.28)}
+ }
+ const t={name:({apple:'Shiny apple',flower:'Pretty flower',wood:'Wood bundle',cloth:'Magic cloth',star:'Star treasure'})[kind],kind,x,z,obj:o,active:true,respawnAt:0};targets.push(t);pickups.push(t)
+}for(let [x,z] of [[-15,-11],[-14,-3],[-18,1],[-7,9],[-4,12],[12,-1],[15,5],[19,-4]])pickup('apple',x,z);for(let [x,z] of [[-14,-11],[-20,8],[20,14],[-9,16],[5,-20],[3,11]])pickup('flower',x,z);for(let [x,z] of [[-18,-5],[17,-11],[6,15],[-3,-20],[20,3]])pickup('star',x,z);pickup('wood',-12,12);pickup('wood',7,15);pickup('cloth',12,-11);pickup('cloth',-12,10);
 function updateUI(){ $('coins').textContent=money(state.coins);for(let k of ['apples','flowers','wood','cloth'])$(k).textContent=state[k];$('level').textContent=homeLevel+'/10';$('questText').textContent=state.apples>=3?'Lovely collecting! Visit Uncle Peter at the market to trade apples for coins.':`Find shiny apples and flowers. Apples collected: ${state.apples}/3.`}
 let toastTimer;function toast(s){$('toast').textContent=s;$('toast').style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').style.display='none',2300)}
 function closeSheet(){$('shade').style.display='none'}function openSheet(title,html){const sheet=$('sheet');sheet.innerHTML='';const h=document.createElement('h2');h.textContent=title;sheet.appendChild(h);const content=document.createElement('div');content.innerHTML=html;sheet.appendChild(content);const actions=document.createElement('div');actions.className='actions';const back=document.createElement('button');back.textContent='Back to village';back.onclick=closeSheet;actions.appendChild(back);sheet.appendChild(actions);$('shade').style.display='flex'}$('shade').addEventListener('click',e=>{if(e.target===$('shade'))closeSheet()});
