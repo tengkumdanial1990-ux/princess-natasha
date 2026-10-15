@@ -51,7 +51,7 @@ label{display:block;font-weight:800;margin:12px 0 5px}select,input[type=color]{w
 </div>
 <div id="quest" class="panel"><h3>✨ Today's little adventure</h3><p id="questText">Hello, Natasha! Find the shiny apples and bring them to the village market.</p><p class="tiny" id="questProgress">Collect 3 apples • Then visit the market stall</p></div>
 <div id="inventory" class="panel"><strong>🎒 Your basket</strong><div class="line"><span>🍎 Apples</span><b id="apples">0</b></div><div class="line"><span>🪵 Wood</span><b id="wood">0</b></div><div class="line"><span>🌼 Flowers</span><b id="flowers">0</b></div><div class="line"><span>🧵 Cloth</span><b id="cloth">0</b></div><div class="line"><span>🏡 Home level</span><b id="homeLevel">1</b></div></div>
-<div id="help" class="panel">Move: W / ↑ forward, S / ↓ back, A / ← left, D / → right • Walk up to a character or sparkle and press <b>E</b> / tap INTERACT.</div>
+<div id="help" class="panel">Move: WASD / arrows • Drag mouse to look around • On touch: joystick to move, drag world to look • Walk up to a character or sparkle and press <b>E</b> / tap INTERACT.</div>
 <div id="toast" class="panel"></div>
 <div id="touchpad"><div class="pad"></div><div id="stick"></div></div><button id="interaction">✨<br>INTERACT</button>
 <div id="modal"><div id="box" class="panel"></div></div>
@@ -205,12 +205,51 @@ window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key.to
 $('interaction').onclick=interact;$('customBtn').onclick=styleMenu;$('modal').addEventListener('click',e=>{if(e.target===$('modal'))closeModal()});
 const keys={};let joy={x:0,z:0};const pad=$('touchpad'),stick=$('stick');let dragging=false;
 pad.addEventListener('pointerdown',e=>{dragging=true;pad.setPointerCapture(e.pointerId);moveStick(e)});pad.addEventListener('pointermove',e=>{if(dragging)moveStick(e)});function moveStick(e){let r=pad.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=e.clientX-cx,dy=e.clientY-cy,len=Math.hypot(dx,dy),max=40;if(len>max){dx=dx/len*max;dy=dy/len*max}stick.style.left=(41+dx)+'px';stick.style.top=(41+dy)+'px';joy.x=dx/max;joy.z=dy/max}function release(){dragging=false;joy={x:0,z:0};stick.style.left='41px';stick.style.top='41px'}pad.addEventListener('pointerup',release);pad.addEventListener('pointercancel',release);
+// Camera orbit: drag mouse on desktop, drag one finger on empty screen on touch.
+let camYaw=0, camHeight=5.8, camDistance=8;
+let cameraPointer=null, cameraLastX=0, cameraLastY=0, touchCameraActive=false;
+renderer.domElement.style.touchAction='none';
+renderer.domElement.addEventListener('contextmenu',e=>e.preventDefault());
+renderer.domElement.addEventListener('pointerdown',e=>{
+ if($('modal').style.display==='flex')return;
+ // Desktop: left-drag to orbit camera; on touch, drag anywhere except the joystick/interact controls.
+ if(e.pointerType==='mouse' || e.pointerType==='pen'){
+   if(e.button!==0)return;
+ } else {
+   if(e.clientX<155 && e.clientY>innerHeight-175)return;
+   if(e.clientX>innerWidth-115 && e.clientY>innerHeight-130)return;
+ }
+ cameraPointer=e.pointerId;cameraLastX=e.clientX;cameraLastY=e.clientY;touchCameraActive=e.pointerType!=='mouse';
+ renderer.domElement.setPointerCapture(e.pointerId);
+});
+renderer.domElement.addEventListener('pointermove',e=>{
+ if(cameraPointer!==e.pointerId)return;
+ const dx=e.clientX-cameraLastX,dy=e.clientY-cameraLastY;cameraLastX=e.clientX;cameraLastY=e.clientY;
+ camYaw-=dx*.008;camHeight=Math.max(3.8,Math.min(10.5,camHeight+dy*.025));
+});
+function endCameraDrag(e){if(cameraPointer===e.pointerId)cameraPointer=null}
+renderer.domElement.addEventListener('pointerup',endCameraDrag);
+renderer.domElement.addEventListener('pointercancel',endCameraDrag);
 let last=performance.now(), walk=0;
 function animate(now){requestAnimationFrame(animate);let dt=Math.min((now-last)/1000,.04);last=now;
- let x=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joy.x;let z=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0)-joy.z;let len=Math.hypot(x,z);if(len>1){x/=len;z/=len}
- if(!$('modal').style.display||$('modal').style.display==='none'){if(len>.1){player.group.position.x+=x*5*dt;player.group.position.z+=z*5*dt;player.group.rotation.y=Math.atan2(x,z);walk+=dt*10;player.legs.forEach((l,i)=>l.rotation.x=Math.sin(walk+i*Math.PI)*.55);player.arms.forEach((a,i)=>a.rotation.x=Math.sin(walk+i*Math.PI)*.2)}else{player.legs.forEach(l=>l.rotation.x*=.75);player.arms.forEach(a=>a.rotation.x*=.75)}}
+ let sx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joy.x;
+ let fz=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0)-joy.z;
+ let len=Math.hypot(sx,fz);if(len>1){sx/=len;fz/=len}
+ if(!$('modal').style.display||$('modal').style.display==='none'){
+   if(len>.1){
+     // WASD is relative to the camera view: W always moves toward the camera's forward horizon.
+     const forwardX=-Math.sin(camYaw), forwardZ=-Math.cos(camYaw);
+     const rightX=Math.cos(camYaw), rightZ=-Math.sin(camYaw);
+     const dx=rightX*sx+forwardX*fz, dz=rightZ*sx+forwardZ*fz;
+     player.group.position.x+=dx*5*dt;player.group.position.z+=dz*5*dt;
+     player.group.rotation.y=Math.atan2(dx,dz);
+     walk+=dt*10;player.legs.forEach((l,i)=>l.rotation.x=Math.sin(walk+i*Math.PI)*.55);player.arms.forEach((a,i)=>a.rotation.x=Math.sin(walk+i*Math.PI)*.2);
+   } else {player.legs.forEach(l=>l.rotation.x*=.75);player.arms.forEach(a=>a.rotation.x*=.75)}
+ }
  player.group.position.x=Math.max(-27,Math.min(27,player.group.position.x));player.group.position.z=Math.max(-27,Math.min(27,player.group.position.z));
- const p=player.group.position;let desired=new THREE.Vector3(p.x,5.8,p.z-8);camera.position.lerp(desired,.14);camera.lookAt(p.x,1.35,p.z+0.25);
+ const p=player.group.position;
+ const desired=new THREE.Vector3(p.x+Math.sin(camYaw)*camDistance,camHeight,p.z+Math.cos(camYaw)*camDistance);
+ camera.position.lerp(desired,.18);camera.lookAt(p.x,1.35,p.z);
  resources.forEach(o=>{if(o.userData.active){o.position.y=o.userData.baseY+.15+Math.sin(now/450+o.userData.phase)*.12;o.rotation.y+=dt*.7}});
  villagers.forEach(v=>{if(v.person&&v.person.group){v.person.group.rotation.y=Math.sin(now/1400+v.x)*.08}});
  if(state.pet&&!window.petObject){const pet=fox(p.x+1,p.z+1);pet.scale.setScalar(.45);window.petObject=pet}
