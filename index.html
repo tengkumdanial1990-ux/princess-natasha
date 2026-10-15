@@ -96,16 +96,65 @@ for(let i=0;i<50;i++){const x=(Math.random()-.5)*45,z=(Math.random()-.5)*43;if(M
 function stall(x,z){box(3.5,1.7,.22,mat('#b9825d'),x,1.0,z);box(4,.18,2.2,mat('#b9825d'),x,2.05,z);for(let i=0;i<4;i++){box(.95,.15,2.15,mat(i%2?'#f4b5c8':'#fff0d7'),x-1.45+i*.97,2.22,z)}box(3.4,.12,1.2,mat('#e7b27b'),x,.8,z+1);for(let i=0;i<5;i++)sphere(.2,mat('#df5964'),x-1.25+i*.6,.95,z+1,9)}
 stall(1,-8);
 // named characters / simple cute villagers
-function person(x,z,shirt,hairColor,scale=1){const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
- const body=new THREE.Mesh(new THREE.CapsuleGeometry(.38*scale,.55*scale,4,8),mat(shirt));body.position.y=1.18*scale;body.castShadow=true;g.add(body);
- const head=new THREE.Mesh(new THREE.SphereGeometry(.34*scale,14,12),mats.skin);head.position.y=1.95*scale;head.castShadow=true;g.add(head);
- const hair=new THREE.Mesh(new THREE.SphereGeometry(.36*scale,12,8,0,Math.PI*2,0,Math.PI*.65),mat(hairColor));hair.position.set(0,2.12*scale,-.03*scale);g.add(hair);
- sphere(.045,mat('#493d4e'),x-.12*scale,1.98*scale,z+.3*scale,8);sphere(.045,mat('#493d4e'),x+.12*scale,1.98*scale,z+.3*scale,8);
- const legs=[];for(let side of [-1,1]){const leg=new THREE.Mesh(new THREE.CapsuleGeometry(.12*scale,.42*scale,3,6),mat('#6f7aa9'));leg.position.set(side*.17*scale,.43*scale,0);leg.castShadow=true;g.add(leg);legs.push(leg)}
- const arms=[];for(let side of [-1,1]){const a=new THREE.Mesh(new THREE.CapsuleGeometry(.11*scale,.42*scale,3,6),mat(shirt));a.position.set(side*.42*scale,1.23*scale,0);a.rotation.z=side*-.18;g.add(a);arms.push(a)}
+function person(x,z,shirt,hairColor,scale=1,isPlayer=false){
+ const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
+ // Legs and shoes
+ const legs=[],arms=[];
+ for(let side of [-1,1]){
+   const leg=new THREE.Mesh(new THREE.CapsuleGeometry(.115*scale,.34*scale,4,8),mat('#8d91b9'));
+   leg.position.set(side*.16*scale,.34*scale,0);leg.castShadow=true;g.add(leg);legs.push(leg);
+   const shoe=new THREE.Mesh(new THREE.SphereGeometry(.14*scale,10,8),mat('#f7e7de'));
+   shoe.scale.set(1,.55,1.25);shoe.position.set(side*.16*scale,.12*scale,.06*scale);g.add(shoe);
+ }
+ // Torso / dress. The player gets a flared skirt so the silhouette reads clearly as a girl.
+ const body=new THREE.Mesh(new THREE.CapsuleGeometry(.31*scale,.52*scale,5,10),mat(shirt));
+ body.position.y=1.18*scale;body.castShadow=true;g.add(body);
+ if(isPlayer){
+   const skirt=new THREE.Mesh(new THREE.CylinderGeometry(.55*scale,.68*scale,.48*scale,16),mat('#f1a9c3'));
+   skirt.position.y=.86*scale;skirt.castShadow=true;g.add(skirt);
+   const waist=new THREE.Mesh(new THREE.CylinderGeometry(.3*scale,.34*scale,.13*scale,12),mat('#f7d4e0'));
+   waist.position.y=1.04*scale;g.add(waist);
+   // Hair falls down both sides of the head.
+   const hairBack=new THREE.Mesh(new THREE.SphereGeometry(.38*scale,14,12),mat(hairColor));
+   hairBack.scale.set(1.03,1.08,.92);hairBack.position.set(0,2.04*scale,-.10*scale);g.add(hairBack);
+   for(const side of [-1,1]){
+     const lock=new THREE.Mesh(new THREE.CapsuleGeometry(.105*scale,.55*scale,4,8),mat(hairColor));
+     lock.position.set(side*.28*scale,1.83*scale,.03*scale);lock.rotation.z=side*.08;g.add(lock);
+   }
+ } else {
+   const hair=new THREE.Mesh(new THREE.SphereGeometry(.36*scale,12,8,0,Math.PI*2,0,Math.PI*.65),mat(hairColor));
+   hair.position.set(0,2.12*scale,-.03*scale);g.add(hair);
+ }
+ // Head and face are all children of the character group (no floating facial pieces).
+ const head=new THREE.Mesh(new THREE.SphereGeometry(.33*scale,16,14),mats.skin);
+ head.position.y=1.94*scale;head.castShadow=true;g.add(head);
+ const eyeMat=mat('#493344',.5), whiteMat=mat('#fffaf2',.5);
+ for(const side of [-1,1]){
+   const eyeWhite=new THREE.Mesh(new THREE.SphereGeometry(.075*scale,10,8),whiteMat);
+   eyeWhite.position.set(side*.115*scale,1.98*scale,.282*scale);g.add(eyeWhite);
+   const eye=new THREE.Mesh(new THREE.SphereGeometry(.042*scale,10,8),eyeMat);
+   eye.position.set(side*.115*scale,1.98*scale,.345*scale);g.add(eye);
+   if(isPlayer){
+     const lash=new THREE.Mesh(new THREE.BoxGeometry(.13*scale,.025*scale,.025*scale),mat(hairColor));
+     lash.position.set(side*.115*scale,2.055*scale,.31*scale);lash.rotation.z=side*.12;g.add(lash);
+   }
+ }
+ if(isPlayer){
+   // Small smile
+   const smile=new THREE.Mesh(new THREE.TorusGeometry(.075*scale,.012*scale,6,12,Math.PI),mat('#b96f79'));
+   smile.position.set(0,1.83*scale,.319*scale);smile.rotation.z=Math.PI;g.add(smile);
+   // A little bow/flower clip
+   const clip1=new THREE.Mesh(new THREE.SphereGeometry(.09*scale,8,8),mat('#f6d16f'));
+   clip1.position.set(.28*scale,2.18*scale,.08*scale);g.add(clip1);
+   for(let a=0;a<4;a++){const petal=new THREE.Mesh(new THREE.SphereGeometry(.06*scale,8,8),mat('#f5a7c4'));petal.position.set(.28*scale+Math.cos(a*Math.PI/2)*.09*scale,2.18*scale+Math.sin(a*Math.PI/2)*.09*scale,.08*scale);g.add(petal)}
+ }
+ for(let side of [-1,1]){
+   const a=new THREE.Mesh(new THREE.CapsuleGeometry(.105*scale,.38*scale,4,8),mat(shirt));
+   a.position.set(side*.39*scale,1.22*scale,0);a.rotation.z=side*-.18;g.add(a);arms.push(a);
+ }
  return {group:g,legs,arms};
 }
-const player=person(0,5,'#b6a0ef','#8a513d',1);player.group.scale.setScalar(1.0);
+const player=person(0,5,'#b6a0ef','#70402f',1,true);player.group.scale.setScalar(1.0);
 let custom={hair:'#8b553f',dress:'#ad92df',skin:'#f2c7a6',hat:'none'};
 const villagers=[
  {name:'Mimi the Market Keeper',kind:'market',x:1,z:-5,person:person(1,-5,'#e7a4c2','#74442f',1.05),desc:'I buy your lovely things and sell useful supplies!'},
@@ -149,7 +198,7 @@ window.saveCoins=()=>{if(state.coins<5){toast('You need 5 coins to put away.');r
 function story(){modal('🌳 Grandma Willow’s Story','<p>“Imagine you have 10 coins,” Grandma says. “You could spend 6 on a toy and have 4 left. Or save all 10 toward a bigger treasure.”</p><p>Which choice feels right today? There is no wrong answer — just different things you can do with your money.</p><div class="itemgrid"><div class="item"><b>🎁 Spend some</b><small>Enjoy something now and keep a little back.</small><button class="pink" onclick="window.storyChoice(&#39;spend&#39;)">Choose spending</button></div><div class="item"><b>🐷 Save for later</b><small>Wait a little longer for a bigger goal.</small><button class="primary" onclick="window.storyChoice(&#39;save&#39;)">Choose saving</button></div></div>',[])}
 window.storyChoice=(choice)=>{state.stars++;refresh();toast(choice==='save'?'Wise planning! Saving can help with bigger dreams.':'Enjoying a treat is fun — it helps to check what you have left!');story()};
 function styleMenu(){modal('🎀 Make your character yours','<p>Pick a look for your little adventurer.</p><label>Dress colour</label><input id="dressColor" type="color" value="'+custom.dress+'"><label>Hair colour</label><input id="hairColor" type="color" value="'+custom.hair+'"><label>Skin tone</label><select id="skinColor"><option value="#f2c7a6">Peach</option><option value="#d89a70">Warm tan</option><option value="#9b6347">Brown</option><option value="#f5ddc4">Light cream</option></select><label>Head accessory</label><select id="hatStyle"><option value="none">No accessory</option><option value="flower">Flower crown</option><option value="crown">Golden crown</option></select><div class="actions"><button class="primary" onclick="window.applyStyle()">Wear this look</button></div>',[])}
-window.applyStyle=()=>{custom.dress=$('dressColor').value;custom.hair=$('hairColor').value;custom.skin=$('skinColor').value;custom.hat=$('hatStyle').value;player.group.children.forEach(o=>{if(o.material&&o.material.color){if(o.geometry.type==='CapsuleGeometry'&&o.position.y>1)o.material.color.set(custom.dress);if(o.geometry.type==='SphereGeometry'&&o.position.y>1.8)o.material.color.set(custom.hair);}});toast('A new look! Your adventure, your style.');closeModal()};
+window.applyStyle=()=>{custom.dress=$('dressColor').value;custom.hair=$('hairColor').value;custom.skin=$('skinColor').value;custom.hat=$('hatStyle').value;player.group.children.forEach(o=>{if(o.material&&o.material.color){if(o.geometry.type==='CapsuleGeometry'&&o.position.y>1&&o.position.y<1.5)o.material.color.set(custom.dress);if(o.geometry.type==='SphereGeometry'&&o.position.y>1.8&&o.position.z<.15)o.material.color.set(custom.hair);}});toast('A new look! Your adventure, your style.');closeModal()};
 function interact(){let p=player.group.position;let choices=[...villagers.map(v=>({x:v.x,z:v.z,dist:Math.hypot(v.x-p.x,v.z-p.z),v})),...resources.filter(o=>o.userData.active).map(o=>({x:o.position.x,z:o.position.z,dist:Math.hypot(o.position.x-p.x,o.position.z-p.z),o}))].sort((a,b)=>a.dist-b.dist);if(!choices.length||choices[0].dist>3.1){toast('Walk closer to a person or sparkle to interact.');return}let c=choices[0];if(c.o){const kind=c.o.userData.kind;c.o.userData.active=false;scene.remove(c.o);if(kind==='star'){state.stars++;state.coins+=2;toast('Shiny treasure! +1 star and 2 coins.')}else{state[kind==='apple'?'apples':kind==='flower'?'flowers':kind]++;toast(({apple:'Apple collected!',wood:'Wood collected!',flower:'Flower collected!',cloth:'Cloth collected!'})[kind]+' Added to your basket.')}refresh();return}
 switch(c.v.kind){case'market':market();break;case'craft':crafting();break;case'story':story();break;case'home':home();break}}
 window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key.toLowerCase()==='e'||e.key==='Enter')interact();if(e.key==='Escape')closeModal()});window.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
@@ -161,7 +210,7 @@ function animate(now){requestAnimationFrame(animate);let dt=Math.min((now-last)/
  let x=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joy.x;let z=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+joy.z;let len=Math.hypot(x,z);if(len>1){x/=len;z/=len}
  if(!$('modal').style.display||$('modal').style.display==='none'){if(len>.1){player.group.position.x+=x*5*dt;player.group.position.z+=z*5*dt;player.group.rotation.y=Math.atan2(x,z);walk+=dt*10;player.legs.forEach((l,i)=>l.rotation.x=Math.sin(walk+i*Math.PI)*.55);player.arms.forEach((a,i)=>a.rotation.x=Math.sin(walk+i*Math.PI)*.2)}else{player.legs.forEach(l=>l.rotation.x*=.75);player.arms.forEach(a=>a.rotation.x*=.75)}}
  player.group.position.x=Math.max(-27,Math.min(27,player.group.position.x));player.group.position.z=Math.max(-27,Math.min(27,player.group.position.z));
- const p=player.group.position;let desired=new THREE.Vector3(p.x+Math.sin(player.group.rotation.y)*8,6.5,p.z+Math.cos(player.group.rotation.y)*8);camera.position.lerp(desired,.09);camera.lookAt(p.x,1.2,p.z);
+ const p=player.group.position;let desired=new THREE.Vector3(p.x-Math.sin(player.group.rotation.y)*8,5.7,p.z-Math.cos(player.group.rotation.y)*8);camera.position.lerp(desired,.09);camera.lookAt(p.x,1.35,p.z);
  resources.forEach(o=>{if(o.userData.active){o.position.y=o.userData.baseY+.15+Math.sin(now/450+o.userData.phase)*.12;o.rotation.y+=dt*.7}});
  villagers.forEach(v=>{if(v.person&&v.person.group){v.person.group.rotation.y=Math.sin(now/1400+v.x)*.08}});
  if(state.pet&&!window.petObject){const pet=fox(p.x+1,p.z+1);pet.scale.setScalar(.45);window.petObject=pet}
