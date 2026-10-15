@@ -1,131 +1,158 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Princess Natasha — Royal Money Adventure</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#9bdff4">
+<title>Princess Natasha: Dream Kingdom</title>
 <style>
-:root{--ink:#3f315f;--pink:#f38dca;--purple:#a78af0;--cream:#fff9f0}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none;font-family:system-ui,-apple-system,sans-serif;color:var(--ink);background:#aee2fa}
-#world{position:fixed;inset:0;overflow:hidden;background:linear-gradient(#aee2fa 0 46%,#d1f5ff 46% 100%)}
-#sun{position:absolute;right:9%;top:14%;width:58px;height:58px;border-radius:50%;background:#fff0a8;box-shadow:0 0 0 14px #fff0a833,0 0 55px #fff6b9}
-.cloud{position:absolute;width:90px;height:24px;background:#ffffffb8;border-radius:30px;top:22%;left:10%;filter:blur(.2px)}.cloud:before,.cloud:after{content:"";position:absolute;background:inherit;border-radius:50%;bottom:5px}.cloud:before{width:36px;height:36px;left:15px}.cloud:after{width:28px;height:28px;left:43px}
-#island{position:absolute;width:min(115vw,780px);height:min(95vw,650px);min-width:570px;min-height:490px;left:50%;top:53%;transform:translate(-50%,-50%) rotateX(52deg) rotateZ(-1deg);border-radius:46%;background:linear-gradient(135deg,#8be19b,#59c97e);border:12px solid #51b66d;box-shadow:0 24px 0 #ba8b66,0 38px 0 #8d6b69,0 45px 45px #477b8a55;transform-style:preserve-3d}
-.path{position:absolute;background:#f6d9ac;border:5px solid #e9bf91;border-radius:40px;box-shadow:inset 0 0 0 4px #fff0cf}
-#pathV{width:90px;height:88%;left:calc(50% - 45px);top:6%}#pathH{width:82%;height:70px;left:9%;top:47%}
-#castle{position:absolute;left:50%;top:8%;width:180px;height:140px;transform:translateX(-50%);filter:drop-shadow(0 8px 0 #ba8d9b);z-index:2}
-.castleBase{position:absolute;left:28px;bottom:0;width:124px;height:80px;background:#ffd5e9;border:5px solid #ef9fc8;border-radius:12px 12px 4px 4px;box-shadow:inset -10px 0 #e9a5cd}
-.tower{position:absolute;bottom:50px;width:45px;height:88px;background:#f8b8dc;border:4px solid #e991c3;border-radius:9px 9px 0 0}.tower.l{left:8px}.tower.r{right:8px}
-.tower:before{content:"";position:absolute;top:-29px;left:-5px;border-left:24px solid transparent;border-right:24px solid transparent;border-bottom:31px solid #a78af0}
-.flag{position:absolute;top:-45px;left:19px;width:4px;height:25px;background:#9a75db}.flag:after{content:"";position:absolute;left:3px;top:0;border-top:8px solid #ffcf4a;border-bottom:8px solid #ffcf4a;border-right:15px solid transparent}
-.door{position:absolute;bottom:0;left:76px;width:28px;height:45px;background:#a16eaa;border-radius:15px 15px 0 0;border:3px solid #85558f}.window{position:absolute;bottom:35px;left:49px;width:18px;height:24px;background:#8bdcf5;border:3px solid white;border-radius:10px}
-#fountain{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);width:95px;height:62px;border-radius:50%;background:#93dff5;border:8px solid #fff0dc;box-shadow:0 9px 0 #dfb68d;z-index:4}
-#fountain:before{content:"";position:absolute;width:34px;height:31px;left:23px;top:-22px;background:#b4ecf8;border:5px solid #fff0dc;border-radius:50% 50% 35% 35%;box-shadow:0 0 10px #fff}
-#fountain:after{content:"";position:absolute;width:18px;height:18px;border-radius:50%;background:#55c7f1;left:31px;top:-29px}
-.tree{position:absolute;width:54px;height:58px;z-index:3}.tree:before{content:"";position:absolute;bottom:0;left:23px;width:12px;height:34px;background:#a96d4c;border-radius:6px}.tree:after{content:"";position:absolute;top:0;left:0;width:54px;height:47px;background:#45c879;border-radius:48% 52% 45% 50%;box-shadow:inset -8px -4px #35b66b,0 5px 0 #2da85c}
-#tree1{left:12%;top:25%}#tree2{right:13%;top:22%}#tree3{left:10%;bottom:19%}#tree4{right:11%;bottom:17%}
-#shop{position:absolute;right:9%;top:45%;width:100px;height:85px;z-index:5;filter:drop-shadow(0 7px 0 #b98d74)}
-.shopBody{position:absolute;bottom:0;width:100%;height:56px;background:#fff0d5;border:4px solid #e8b98e;border-radius:7px}.shopRoof{position:absolute;top:0;left:-7px;width:114px;height:30px;background:repeating-linear-gradient(90deg,#f38dca 0 18px,#ffb7de 18px 36px);clip-path:polygon(8% 0,92% 0,100% 100%,0 100%);border-radius:5px}.shopSign{position:absolute;top:32px;left:22px;font-size:12px;font-weight:900;background:#fff;border-radius:5px;padding:2px 7px}
-#pig{position:absolute;left:12%;top:48%;width:65px;height:54px;z-index:5}
-.pigBody{position:absolute;left:4px;bottom:0;width:57px;height:40px;border-radius:48%;background:#ff9fcf;border:3px solid #ef79b8;box-shadow:inset -7px -4px #f18abd}
-.pigEar{position:absolute;top:0;width:17px;height:22px;background:#ffacd7;border:3px solid #ef79b8;border-radius:70% 30% 45% 45%;transform:rotate(-20deg)}.pigEar.one{left:9px}.pigEar.two{right:9px;transform:rotate(20deg)}
-.pigEye{position:absolute;top:22px;left:20px;width:5px;height:5px;border-radius:50%;background:#633c68;box-shadow:17px 0 #633c68}.pigNose{position:absolute;right:-4px;top:25px;width:14px;height:11px;border-radius:50%;background:#f47db6;border:2px solid #e96ba9}
-#coins{position:absolute;inset:0;z-index:6;pointer-events:none}.coin{position:absolute;font-size:30px;filter:drop-shadow(0 4px 0 #c68c2d);animation:bob 1.5s ease-in-out infinite}.coin:nth-child(2n){animation-delay:-.7s}
-@keyframes bob{50%{transform:translateY(-9px) rotate(8deg)}}
-#princess{position:absolute;left:50%;top:69%;width:64px;height:105px;z-index:8;transform:translate(-50%,-50%);transition:left .12s linear,top .12s linear;filter:drop-shadow(0 5px 1px #5b8d7860)}
-#princess .hair{position:absolute;left:13px;top:16px;width:39px;height:34px;border-radius:48% 48% 42% 42%;background:#794052;z-index:1}
-#princess .face{position:absolute;left:18px;top:19px;width:30px;height:31px;border-radius:48%;background:#f6c5a4;z-index:2}
-#princess .eye{position:absolute;top:12px;width:4px;height:5px;border-radius:50%;background:#43304e}#princess .eye.a{left:7px}#princess .eye.b{right:7px}
-#princess .crown{position:absolute;left:17px;top:8px;width:32px;height:16px;background:#ffcf4a;clip-path:polygon(0 100%,0 25%,25% 55%,40% 0,60% 55%,82% 10%,100% 25%,100% 100%);z-index:4}
-#princess .dress{position:absolute;left:6px;top:48px;width:52px;height:46px;background:linear-gradient(90deg,#e96fb3,#ffb1dd 50%,#e96fb3);clip-path:polygon(30% 0,70% 0,100% 100%,0 100%);z-index:3}
-#princess .arm{position:absolute;top:53px;width:11px;height:29px;background:#f6c5a4;border-radius:10px;z-index:2}.arm.a{left:4px;transform:rotate(18deg)}.arm.b{right:4px;transform:rotate(-18deg)}
-#princess .feet{position:absolute;left:17px;top:88px;width:12px;height:12px;border-radius:5px;background:#8e5fb5;box-shadow:17px 0 #8e5fb5;z-index:2}
-.panel{background:#fffaf3f2;border:2px solid white;border-radius:20px;box-shadow:0 8px 22px #607e9a24;backdrop-filter:blur(5px)}
-#hud{position:fixed;z-index:20;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;pointer-events:none}
-#brand{padding:9px 12px;font-weight:950;font-size:14px;line-height:1.2;max-width:52%}#brand small{font-weight:650;font-size:11px}
-#stats{padding:8px 10px;font-weight:850;font-size:13px;display:flex;gap:9px;align-items:center;flex-wrap:wrap;justify-content:flex-end;max-width:62%}
-button{font:inherit;font-weight:850;border:0;border-radius:13px;background:linear-gradient(135deg,#ed8fc9,#a88af0);color:white;padding:10px 12px;box-shadow:0 4px 0 #8d70c8;cursor:pointer}
-#quest{position:fixed;z-index:20;left:10px;top:105px;width:min(275px,67vw);padding:12px}
-#quest h3{margin:0 0 5px;font-size:16px}#quest p{font-size:13px;line-height:1.35;margin:4px 0}
-#hint{position:fixed;z-index:20;bottom:10px;left:50%;transform:translateX(-50%);width:max-content;max-width:70vw;padding:9px 12px;text-align:center;font-weight:800;font-size:12px}
-#controls{touch-action:none;position:fixed;z-index:21;bottom:17px;left:12px;display:grid;grid-template-columns:48px 48px 48px;grid-template-rows:43px 43px;gap:5px;touch-action:none}
-#controls button{padding:0;font-size:21px;opacity:.96}#controls button:nth-child(1){grid-column:2;grid-row:1}#controls button:nth-child(2){grid-column:1;grid-row:2}#controls button:nth-child(3){grid-column:2;grid-row:2}#controls button:nth-child(4){grid-column:3;grid-row:2}
-#interact{position:fixed;z-index:21;right:15px;bottom:26px;width:76px;height:76px;border-radius:50%;font-size:20px;line-height:1.05}
-#interact small{font-size:10px}
-#story{position:fixed;z-index:30;display:none;left:50%;top:50%;transform:translate(-50%,-50%);width:min(430px,calc(100vw - 28px));padding:20px}
-#story h2{margin:0 0 8px}#story p{font-size:15px;line-height:1.55}
-#storyActions{display:flex;gap:8px;flex-wrap:wrap}
-#toast{position:fixed;z-index:40;top:48%;left:50%;transform:translate(-50%,-50%);display:none;padding:15px 20px;font-weight:900;text-align:center;width:max-content;max-width:85vw}
-#dim{position:fixed;z-index:29;inset:0;background:#38275066;display:none}
-@media(min-width:800px){#controls,#interact{opacity:.88}#quest{top:110px}#hint{bottom:14px}}
-@media(max-width:390px){#stats{font-size:11px;gap:5px;padding:7px}#brand{font-size:12px}#quest{top:105px}#hint{bottom:116px;max-width:92vw}}
+:root{--ink:#3c2d5d;--pink:#ff8dc7;--purple:#9a7bf0;--cream:#fff9ef;--mint:#a8efbd;--gold:#ffd45c}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:ui-rounded,"Trebuchet MS",system-ui,sans-serif;color:var(--ink);background:#a8e3fa;overscroll-behavior:none;touch-action:manipulation}
+#game{position:fixed;inset:0}canvas{display:block;width:100%;height:100%;touch-action:none}
+.panel{background:rgba(255,250,242,.94);border:2px solid #fff;box-shadow:0 5px 0 #765ab32b,0 12px 28px #4d63801a;border-radius:18px;backdrop-filter:blur(8px)}
+#top{position:fixed;top:max(8px,env(safe-area-inset-top));left:8px;right:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;z-index:5;pointer-events:none}
+#brand{padding:8px 11px;font-size:clamp(12px,2.6vw,17px);font-weight:1000;line-height:1.15;max-width:54%}#brand small{font-size:10px;font-weight:700;display:block;margin-top:3px}
+#stats{padding:7px 9px;display:flex;gap:9px;align-items:center;font-size:clamp(11px,2.5vw,15px);font-weight:900;flex-wrap:wrap;justify-content:flex-end;max-width:60%;pointer-events:auto}
+button{font:inherit;font-weight:900;border:0;border-radius:13px;background:linear-gradient(135deg,#ff90c9,#a58af4);color:white;padding:10px 12px;box-shadow:0 4px 0 #8265c2;cursor:pointer;touch-action:manipulation}
+button:active{transform:translateY(2px);box-shadow:0 2px 0 #8265c2}
+button.secondary{background:#fff;color:#634b8c;border:2px solid #eadfff;box-shadow:none}
+button:disabled{opacity:.45;filter:grayscale(.4)}
+#mission{position:fixed;z-index:5;top:88px;left:9px;width:min(285px,68vw);padding:11px 13px;pointer-events:none}
+#mission h3{margin:0 0 4px;font-size:15px}#mission p{margin:3px 0;font-size:12px;line-height:1.35}
+#hint{position:fixed;z-index:5;bottom:calc(10px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);padding:8px 12px;font-size:12px;font-weight:900;text-align:center;width:max-content;max-width:66vw;pointer-events:none}
+#controls{position:fixed;z-index:7;left:12px;bottom:calc(18px + env(safe-area-inset-bottom));display:grid;grid-template-columns:45px 45px 45px;grid-template-rows:41px 41px;gap:5px;touch-action:none}
+#controls button{padding:0;font-size:20px;opacity:.95}#controls button:nth-child(1){grid-column:2;grid-row:1}#controls button:nth-child(2){grid-column:1;grid-row:2}#controls button:nth-child(3){grid-column:2;grid-row:2}#controls button:nth-child(4){grid-column:3;grid-row:2}
+#act{position:fixed;z-index:7;right:13px;bottom:calc(25px + env(safe-area-inset-bottom));width:72px;height:72px;border-radius:50%;font-size:20px;line-height:1.05}#act small{font-size:10px}
+#quick{position:fixed;right:9px;top:88px;z-index:6;display:flex;flex-direction:column;gap:6px}#quick button{padding:8px 10px;font-size:12px}
+#overlay{position:fixed;inset:0;background:#33234f82;z-index:20;display:none;align-items:center;justify-content:center;padding:14px}
+#dialog{width:min(480px,100%);max-height:84dvh;overflow:auto;padding:19px}
+#dialog h2{font-size:22px;margin:0 0 7px}#dialog p{font-size:15px;line-height:1.48;margin:7px 0 13px}
+.options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.option{background:#fff;border:2px solid #f0dff9;border-radius:15px;padding:10px;text-align:left;color:var(--ink);box-shadow:none}
+.option .emoji{font-size:30px;display:block;margin-bottom:4px}.option strong{display:block}.option small{display:block;font-size:12px;font-weight:700;margin-top:3px;color:#76678e}
+#dialogActions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+#toast{position:fixed;z-index:30;top:43%;left:50%;transform:translate(-50%,-50%);padding:13px 18px;display:none;font-weight:1000;text-align:center;width:max-content;max-width:85vw}
+#progress{height:7px;border-radius:20px;background:#eadff9;overflow:hidden;margin:8px 0}#bar{height:100%;width:0;background:linear-gradient(90deg,#ff91c9,#9c85f2);transition:width .25s}
+@media(min-width:850px){#controls{opacity:.75}#mission{top:100px}#quick{top:100px}}
+@media(max-width:390px){#mission{top:91px;padding:9px;width:65vw}#mission p{font-size:11px}#quick{top:145px}#quick button{font-size:11px;padding:7px}#hint{bottom:112px;max-width:85vw}}
 </style>
 </head>
 <body>
-<div id="world">
- <div id="sun"></div><div class="cloud"></div><div class="cloud" style="top:31%;left:68%;transform:scale(.75)"></div>
- <div id="island">
-  <div id="pathV" class="path"></div><div id="pathH" class="path"></div>
-  <div id="castle"><div class="castleBase"></div><div class="tower l"><div class="flag"></div></div><div class="tower r"><div class="flag"></div></div><div class="door"></div><div class="window"></div></div>
-  <div id="fountain"></div>
-  <div id="tree1" class="tree"></div><div id="tree2" class="tree"></div><div id="tree3" class="tree"></div><div id="tree4" class="tree"></div>
-  <div id="shop"><div class="shopBody"></div><div class="shopRoof"></div><div class="shopSign">SHOP</div></div>
-  <div id="pig"><div class="pigEar one"></div><div class="pigEar two"></div><div class="pigBody"></div><div class="pigEye"></div><div class="pigNose"></div></div>
-  <div id="coins"><span class="coin" style="left:35%;top:58%">🪙</span><span class="coin" style="left:62%;top:63%">🪙</span><span class="coin" style="left:25%;top:42%">🪙</span><span class="coin" style="left:72%;top:39%">🪙</span><span class="coin" style="left:47%;top:76%">🪙</span><span class="coin" style="left:18%;top:65%">🪙</span><span class="coin" style="left:81%;top:60%">🪙</span><span class="coin" style="left:55%;top:35%">🪙</span></div>
-  <div id="princess"><div class="hair"></div><div class="face"><i class="eye a"></i><i class="eye b"></i></div><div class="crown"></div><div class="dress"></div><div class="arm a"></div><div class="arm b"></div><div class="feet"></div></div>
- </div>
+<div id="game"><canvas id="c" aria-label="Princess Natasha's Dream Kingdom game"></canvas></div>
+<div id="top">
+ <div id="brand" class="panel">👑 PRINCESS NATASHA <small>Dream Kingdom · Chapter 1</small></div>
+ <div id="stats" class="panel"><span>🪙 <b id="coins">15</b></span><span>🏡 <b id="home">1</b></span><span>🐾 <b id="pets">0</b></span><span>⭐ <b id="stars">0</b></span></div>
 </div>
-<div id="hud"><div id="brand" class="panel">👑 PRINCESS NATASHA<br><small>Royal Money Adventure · 3D-style</small></div><div id="stats" class="panel"><span>🪙 <b id="money">10</b></span><span>🐷 <b id="saved">0</b></span><span>⭐ <b id="stars">0</b></span><button id="storyBtn">📖 Story</button></div></div>
-<div id="quest" class="panel"><h3>✨ Royal mission</h3><p id="mission">Find the royal helper near the fountain.</p><p id="progress">Mission: Learn to earn</p></div>
-<div id="hint" class="panel">Use arrows to move · Tap E to interact</div>
+<div id="mission" class="panel"><h3>✨ Today's royal quest</h3><p id="questText">Meet Pip the palace helper by the fountain.</p><div id="progress"><div id="bar"></div></div><p id="questStep">Step 1 of 4 · Explore the kingdom</p></div>
+<div id="quick"><button id="storyBtn">📖 Storybook</button><button id="bagBtn">🎒 My treasures</button></div>
+<div id="hint" class="panel">Explore with the arrows · Tap E when you're near something</div>
 <div id="controls"><button data-dir="up">▲</button><button data-dir="left">◀</button><button data-dir="down">▼</button><button data-dir="right">▶</button></div>
-<button id="interact">E<br><small>Interact</small></button>
-<div id="dim"></div><div id="story" class="panel"><h2 id="storyTitle">📖 A Royal Beginning</h2><p id="storyBody"></p><div id="storyActions"><button id="listen">🔊 Listen</button><button id="prev" style="background:#fff;color:#654e8a;box-shadow:none">← Back</button><button id="next">Next →</button><button id="closeStory" style="background:#fff;color:#654e8a;box-shadow:none">Close</button></div></div>
-<div id="toast" class="panel"></div>
+<button id="act">E<br><small>Interact</small></button>
+<div id="overlay"><div id="dialog" class="panel"></div></div><div id="toast" class="panel"></div>
 <script>
-(()=>{
-const princess=document.getElementById('princess'),island=document.getElementById('island'),toast=document.getElementById('toast');
-let x=50,y=69,money=10,saved=0,stars=0,mission=0,storyIndex=0,toastTimer,near='';
-const collected=new Set(),coins=[...document.querySelectorAll('.coin')];
-const pages=[
-['A Royal Beginning','Good morning, Princess Natasha! The kingdom is getting ready for the Sparkle Festival, but the royal treasure chest is nearly empty. A friendly helper has a plan: Natasha can earn coins by helping people. Every little coin is a step towards something wonderful.'],
-['Coins Have Choices','At the Royal Shop, Natasha sees sweets, a storybook and a teddy bear. She has to think about what she wants most. She can buy one thing now, or save her coins for a bigger surprise later. There is no wrong treat to enjoy — the trick is making a plan.'],
-['The Magic of Saving','Every time Natasha puts coins in her piggy bank, her unicorn dream gets closer. Saving means keeping some money for something she wants in the future. She does not have to save every coin. She can choose how much to save and how much to spend.']
-];
-function hud(){document.getElementById('money').textContent=money;document.getElementById('saved').textContent=saved;document.getElementById('stars').textContent=stars;
-document.getElementById('mission').textContent=mission===0?'Find the royal helper near the fountain and press E.':mission===1?'Collect the golden coins around the kingdom.':mission===2?'Visit the pink piggy bank and save some coins.':'Visit the Royal Shop and choose a treat you can afford.';
-document.getElementById('progress').textContent=['Mission: Learn to earn','Mission: Collect coins ('+collected.size+'/8)','Mission: Build a saving habit','Mission: Spend wisely'][Math.min(mission,3)];
+(()=> {
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+const $=id=>document.getElementById(id);
+let W=0,H=0,DPR=1;
+function resize(){DPR=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*DPR;canvas.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0)}
+addEventListener('resize',resize);resize();
+const state={coins:15,saved:0,stars:0,home:1,pets:[],quest:0,items:[],x:0,z:2,dir:0,story:0,seenIntro:false};
+try{const old=JSON.parse(localStorage.getItem('natashaDreamSave')||'null');if(old&&old.v===2)Object.assign(state,old)}catch(e){}
+function save(){try{localStorage.setItem('natashaDreamSave',JSON.stringify({...state,v:2}))}catch(e){}}
+const world={helper:{x:0,z:-2.6},home:{x:-4.5,z:-3.3},shop:{x:4.5,z:-1.7},bank:{x:-4.5,z:2.2},pet:{x:4.3,z:3.1},treasure:{x:0,z:5.4}};
+const COLORS={ink:'#3c2d5d',grass:'#75d78f',grass2:'#62c97d',pink:'#ff9dcc',pink2:'#f477b7',purple:'#a58bf1',gold:'#ffd55c',cream:'#fff2d5',water:'#8ce1f5',wood:'#a56c4b',white:'#fffaf2'};
+function roundRect(x,y,w,h,r,fill,stroke){ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke()}}
+function ellipse(x,y,rx,ry,fill){ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fillStyle=fill;ctx.fill()}
+function polygon(points,fill,stroke){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke()}}
+function text(t,x,y,size=14,color=COLORS.ink,weight='bold',align='center'){ctx.fillStyle=color;ctx.font=`${weight} ${size}px system-ui`;ctx.textAlign=align;ctx.fillText(t,x,y)}
+function project(x,z,y=0){const scale=Math.min(W/18,H/13);return {x:W/2+(x-state.x)*scale*.88,y:H*.55+(z-state.z)*scale*.48-y*scale*.8, s:scale}}
+function drawTree(x,z){let p=project(x,z);ellipse(p.x,p.y+5,p.s*.43,p.s*.16,'#4da96d');roundRect(p.x-p.s*.08,p.y-p.s*.52,p.s*.16,p.s*.62,5,COLORS.wood);ellipse(p.x,p.y-p.s*.65,p.s*.4,p.s*.39,'#36b96e');ellipse(p.x-p.s*.15,p.y-p.s*.72,p.s*.22,p.s*.2,'#58d98a')}
+function drawCoin(x,z,emoji='🪙'){let p=project(x,z);ellipse(p.x,p.y+3,p.s*.24,p.s*.1,'#c58a30');ellipse(p.x,p.y,p.s*.23,p.s*.23,COLORS.gold);ellipse(p.x,p.y,p.s*.15,p.s*.15,'#ffec9c');text('★',p.x,p.y+p.s*.07,p.s*.2,'#d99b25')}
+function drawHouse(){let p=project(world.home.x,world.home.z),s=p.s;
+ellipse(p.x,p.y+s*.25,s*.95,s*.28,'#4ab873');
+polygon([[p.x-s*.8,p.y],[p.x,p.y-s*.8],[p.x+s*.8,p.y]],'#f38bc5','#dc6aa9');
+roundRect(p.x-s*.65,p.y-s*.02,s*1.3,s*.85,8,'#ffe4f1','#e79ac6');
+roundRect(p.x-s*.16,p.y+s*.28,s*.32,s*.55,7,'#9e70bb');
+roundRect(p.x-s*.5,p.y+s*.12,s*.22,s*.23,5,'#8bdff4','#fff');
+roundRect(p.x+s*.28,p.y+s*.12,s*.22,s*.23,5,'#8bdff4','#fff');
+text('🏡',p.x,p.y-s*.12,s*.4);
+if(state.items.includes('flowerbed')){for(let i=0;i<5;i++){ellipse(p.x-s*.48+i*s*.24,p.y+s*.82,s*.07,s*.07,['#ff91c8','#ffd65c','#ad8cff'][i%3])}}
+if(state.items.includes('rainbow')){ctx.strokeStyle='#ff7eb7';ctx.lineWidth=s*.09;ctx.beginPath();ctx.arc(p.x,p.y-s*.1,s*.75,Math.PI,Math.PI*2);ctx.stroke();ctx.strokeStyle='#ffcf5c';ctx.beginPath();ctx.arc(p.x,p.y-s*.1,s*.62,Math.PI,Math.PI*2);ctx.stroke()}}
+function drawCastle(){let p=project(0,-6.1),s=p.s;ellipse(p.x,p.y+s*.12,s*1.1,s*.25,'#55bd79');roundRect(p.x-s*.7,p.y-s*.7,s*1.4,s*.95,9,'#ffd5e9','#e99bc7');roundRect(p.x-s*.92,p.y-s*1.1,s*.42,s*1.45,7,'#f5b5dc','#e98fc2');roundRect(p.x+s*.5,p.y-s*1.1,s*.42,s*1.45,7,'#f5b5dc','#e98fc2');polygon([[p.x-s*1.03,p.y-s*1.1],[p.x-s*.71,p.y-s*1.58],[p.x-s*.39,p.y-s*1.1]],COLORS.purple);polygon([[p.x+s*.39,p.y-s*1.1],[p.x+s*.71,p.y-s*1.58],[p.x+s*1.03,p.y-s*1.1]],COLORS.purple);roundRect(p.x-s*.17,p.y-s*.22,s*.34,s*.48,12,'#9d6cb4');roundRect(p.x-s*.53,p.y-s*.5,s*.18,s*.22,7,COLORS.water,'white');roundRect(p.x+s*.35,p.y-s*.5,s*.18,s*.22,7,COLORS.water,'white');text('✨',p.x,p.y-s*1.67,s*.36)}
+function drawFountain(){let p=project(0,-2.4),s=p.s;ellipse(p.x,p.y+s*.12,s*.78,s*.27,'#c9a4a4');ellipse(p.x,p.y,s*.76,s*.28,COLORS.cream);ellipse(p.x,p.y-s*.03,s*.59,s*.19,COLORS.water);roundRect(p.x-s*.13,p.y-s*.48,s*.26,s*.42,8,'#d5f8ff','#fff');ellipse(p.x,p.y-s*.51,s*.15,s*.09,'#69d5f1')}
+function drawShop(){let p=project(world.shop.x,world.shop.z),s=p.s;ellipse(p.x,p.y+s*.2,s*.65,s*.18,'#55bd79');roundRect(p.x-s*.58,p.y-s*.02,s*1.16,s*.65,7,'#fff0d6','#e6bd8b');polygon([[p.x-s*.7,p.y],[p.x-s*.52,p.y-s*.45],[p.x+s*.52,p.y-s*.45],[p.x+s*.7,p.y]],'#f58bc5','#dc6aa9');text('SHOP',p.x,p.y+s*.24,s*.21);text('🛍️',p.x,p.y-s*.12,s*.4)}
+function drawBank(){let p=project(world.bank.x,world.bank.z),s=p.s;ellipse(p.x,p.y+s*.13,s*.5,s*.18,'#55bd79');ellipse(p.x,p.y,s*.38,s*.3,'#ff9fcf');ellipse(p.x-s*.22,p.y-s*.23,s*.13,s*.18,'#ffb9dc');ellipse(p.x+s*.1,p.y-s*.24,s*.13,s*.18,'#ffb9dc');ellipse(p.x-s*.1,p.y-s*.02,s*.04,s*.04,COLORS.ink);ellipse(p.x+s*.12,p.y-s*.02,s*.04,s*.04,COLORS.ink);roundRect(p.x-s*.1,p.y-s*.28,s*.24,s*.04,4,'#d95b9b')}
+function drawPetStand(){let p=project(world.pet.x,world.pet.z),s=p.s;ellipse(p.x,p.y+s*.15,s*.6,s*.19,'#55bd79');roundRect(p.x-s*.48,p.y-s*.15,s*.96,s*.38,8,'#fff0d6','#e6bd8b');text(state.pets.length?'🐾':'🐶',p.x,p.y-s*.33,s*.62);text(state.pets.length?'PET HOME':'PET RESCUE',p.x,p.y+s*.08,s*.16)}
+function drawTreasure(){let p=project(world.treasure.x,world.treasure.z),s=p.s;ellipse(p.x,p.y+s*.1,s*.5,s*.16,'#55bd79');roundRect(p.x-s*.34,p.y-s*.1,s*.68,s*.42,7,'#a96e4b','#7d4e3a');roundRect(p.x-s*.37,p.y-s*.2,s*.74,s*.18,5,COLORS.gold,'#d99a35');text('✨',p.x,p.y-s*.38,s*.38)}
+function drawPrincess(){let p=project(0,0),s=p.s;ellipse(p.x,p.y+s*.1,s*.28,s*.1,'#4da96d');roundRect(p.x-s*.09,p.y-s*.04,s*.08,s*.23,4,'#f4c4a4');roundRect(p.x+s*.02,p.y-s*.04,s*.08,s*.23,4,'#f4c4a4');polygon([[p.x-s*.12,p.y-s*.08],[p.x+s*.12,p.y-s*.08],[p.x+s*.3,p.y+s*.34],[p.x-s*.3,p.y+s*.34]],'#ff83c2','#e56cae');roundRect(p.x-s*.18,p.y-s*.43,s*.36,s*.38,s*.14,'#f4c4a4');ellipse(p.x,p.y-s*.5,s*.22,s*.2,'#794258');ellipse(p.x,p.y-s*.42,s*.17,s*.17,'#f4c4a4');ellipse(p.x-s*.055,p.y-s*.43,s*.025,s*.03,COLORS.ink);ellipse(p.x+s*.055,p.y-s*.43,s*.025,s*.03,COLORS.ink);polygon([[p.x-s*.18,p.y-s*.55],[p.x-s*.12,p.y-s*.69],[p.x-s*.04,p.y-s*.58],[p.x+s*.04,p.y-s*.71],[p.x+s*.12,p.y-s*.58],[p.x+s*.18,p.y-s*.55]],COLORS.gold,'#e6a92e');ellipse(p.x,p.y-s*.58,s*.055,s*.045,'#ff72b7');}
+function drawWorld(){let g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#9edffa');g.addColorStop(1,'#d4f8ff');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ellipse(W*.82,H*.16,28,28,'#fff0a3');ellipse(W*.82,H*.16,39,39,'#fff0a326');
+for(let i=0;i<4;i++){let x=(i*W*.31+W*.07)%W,y=H*(.17+(i%2)*.1);ellipse(x,y,28,10,'#ffffff9c');ellipse(x+14,y-7,16,14,'#ffffff9c')}
+let s=Math.min(W/18,H/13);let island=project(0,0);ctx.save();ctx.translate(W/2,H*.56);ctx.scale(s*.88,s*.48);ellipse(0,0,8.8,7.2,'#b18a7b');ellipse(0,-.18,8.8,7.1,'#4db875');ellipse(0,-.25,8.55,6.85,'#79dc91');ctx.strokeStyle='#4db875';ctx.lineWidth=.18;ctx.beginPath();ctx.ellipse(0,-.25,8.55,6.85,0,0,Math.PI*2);ctx.stroke();ctx.restore();
+ // paths in world coords
+ const path=(x1,z1,x2,z2,width)=>{let a=project(x1,z1),b=project(x2,z2);ctx.strokeStyle='#e8bd8f';ctx.lineWidth=width*s;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.strokeStyle='#fff0d1';ctx.lineWidth=(width-.13)*s;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()};
+ path(0,-5.5,0,5.5,1.15);path(-5,-1.6,5,-1.6,1.15);
+ [[-7,-3.5],[7,-3.7],[-7,2.8],[7,2.4],[-6,5],[6,5]].forEach(t=>drawTree(...t));
+ drawCastle();drawFountain();drawHouse();drawShop();drawBank();drawPetStand();drawTreasure();
+ // sparkle/coin collectibles
+ const spots=[[-2.3,-.3],[2.5,.3],[-2.1,2.2],[2.3,4.2],[1.4,-4.3],[-5.8,.2],[5.6,1.1],[0,4.4]];
+ spots.forEach((pt,i)=>{if(!state.items.includes('coin'+i))drawCoin(...pt)});
+ state.pets.forEach((pet,i)=>{let p=project(world.home.x+(i%2)*.7,world.home.z+1+(i%3)*.3);text(pet.emoji,p.x,p.y-i*2,s*.5)});
+ drawPrincess();
 }
-function say(t){toast.textContent=t;toast.style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.style.display='none',2300)}
-function move(dx,dy){x=Math.max(8,Math.min(92,x+dx));y=Math.max(20,Math.min(89,y+dy));princess.style.left=x+'%';princess.style.top=y+'%';checkNear();}
-function checkNear(){const targets=[{name:'helper',x:50,y:42,label:'royal helper near the fountain'},{name:'pig',x:18,y:56,label:'pink piggy bank'},{name:'shop',x:80,y:51,label:'Royal Shop'}];near='';for(const t of targets){if(Math.hypot(x-t.x,y-t.y)<12){near=t.name;break}}
-if(near)document.getElementById('hint').textContent='Near the '+({helper:'royal helper — tap E',pig:'piggy bank — tap E',shop:'shop — tap E'}[near])+' ✨';else document.getElementById('hint').textContent='Move with arrows · Collect coins · Tap E to interact';}
-function openStory(i){storyIndex=(i+pages.length)%pages.length;document.getElementById('storyTitle').textContent='📖 '+pages[storyIndex][0];document.getElementById('storyBody').textContent=pages[storyIndex][1];document.getElementById('story').style.display='block';document.getElementById('dim').style.display='block';}
-function closeStory(){document.getElementById('story').style.display='none';document.getElementById('dim').style.display='none';if(window.speechSynthesis)speechSynthesis.cancel()}
-document.getElementById('storyBtn').onclick=()=>openStory(storyIndex);document.getElementById('closeStory').onclick=closeStory;document.getElementById('next').onclick=()=>openStory(storyIndex+1);document.getElementById('prev').onclick=()=>openStory(storyIndex-1);
-document.getElementById('listen').onclick=()=>{if(!('speechSynthesis'in window)){say('Audio narration is not supported in this browser.');return}speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(pages[storyIndex][1]);u.lang='en-SG';u.rate=.88;u.pitch=1.12;speechSynthesis.speak(u)};
-function interact(){if(document.getElementById('story').style.display==='block')return;
-if(near==='helper'){if(mission===0){money+=5;stars++;mission=1;hud();say('The helper gives Natasha 5 coins! Collect the shiny coins next. 🪙')}else{say('You can do it, Princess Natasha! Explore the kingdom and collect coins. ✨')}}
-else if(near==='pig'){if(money>=5){money-=5;saved+=5;stars++;mission=Math.max(mission,3);hud();say('You saved 5 coins! Your unicorn dream is closer. 🐷')}else say('Earn a few more coins before saving. Every coin counts!')}
-else if(near==='shop'){let choice=prompt('ROYAL SHOP\\nYou have '+money+' coins.\\nType 1 to buy a storybook for 4 coins.\\nType 2 to buy a sparkly wand for 8 coins.\\nType 3 to keep saving.');if(choice==='1'&&money>=4){money-=4;stars++;mission=3;hud();say('A storybook! A lovely choice, Natasha. 📚')}else if(choice==='2'&&money>=8){money-=8;stars++;mission=3;hud();say('The sparkly wand is yours! ✨')}else if(choice==='3')say('Great plan! You can come back when you are ready.');else if(choice!==null)say('Not enough coins for that yet. Keep exploring!');}
-else say('Walk around to find the helper, piggy bank, shop and golden coins!');}
-document.getElementById('interact').onclick=interact;
-document.getElementById('interact').addEventListener('touchend',e=>{e.preventDefault();interact()},{passive:false});
-document.querySelectorAll('[data-dir]').forEach(b=>{
- let timer=null;
- const step=()=>{const d=b.dataset.dir;if(d==='up')move(0,-3);if(d==='down')move(0,3);if(d==='left')move(-3,0);if(d==='right')move(3,0)};
- const stop=()=>{if(timer!==null){clearInterval(timer);timer=null}};
- // Support tap, touch, and pointer events in mobile in-app browsers.
- b.addEventListener('click',e=>{e.preventDefault();step()});
- b.addEventListener('pointerdown',e=>{e.preventDefault();step();stop();timer=setInterval(step,180)});
- b.addEventListener('touchstart',e=>{e.preventDefault();step();stop();timer=setInterval(step,180)},{passive:false});
- ['pointerup','pointerleave','pointercancel','touchend','touchcancel','blur'].forEach(ev=>b.addEventListener(ev,stop));
-});
-document.addEventListener('keydown',e=>{let k=e.key.toLowerCase();if(k==='arrowup'||k==='w')move(0,-2.3);else if(k==='arrowdown'||k==='s')move(0,2.3);else if(k==='arrowleft'||k==='a')move(-2.3,0);else if(k==='arrowright'||k==='d')move(2.3,0);else if(k==='e'||k===' ')interact();else if(k==='escape')closeStory()});
-coins.forEach((c,i)=>c.addEventListener('click',()=>collect(i)));
-function collect(i){if(collected.has(i))return;collected.add(i);coins[i].style.visibility='hidden';money++;hud();say('+1 gold coin! 🪙');if(collected.size===8){mission=Math.max(mission,2);stars++;hud();say('All 8 coins collected! You are a royal treasure hunter! ⭐')}}
-coins.forEach((c,i)=>{c.style.pointerEvents='auto';c.style.cursor='pointer';c.addEventListener('touchstart',()=>collect(i),{passive:true})});
-hud();checkNear();
+let last=0;function frame(t){if(t-last>28){drawWorld();last=t}requestAnimationFrame(frame)}requestAnimationFrame(frame);
+function updateHUD(){$('coins').textContent=state.coins;$('home').textContent=state.home;$('pets').textContent=state.pets.length;$('stars').textContent=state.stars;$('questText').textContent=['Meet Pip the palace helper by the fountain.','Collect 3 sparkling coins around the kingdom.','Adopt your first pet at the Pet Rescue.','Decorate your dream home with a flowerbed.','Treasure time! Find the hidden chest.','You are a Dream Kingdom designer! Choose your next goal.'][Math.min(state.quest,5)];$('questStep').textContent=['Step 1 of 5 · Meet a new friend','Step 2 of 5 · Collect 3 coins','Step 3 of 5 · Welcome a pet','Step 4 of 5 · Make home cosy','Step 5 of 5 · Find treasure','Free play · Build your dream'][Math.min(state.quest,5)];$('bar').style.width=(Math.min(state.quest,5)/5*100)+'%'}
+function toast(s){$('toast').textContent=s;$('toast').style.display='block';clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('toast').style.display='none',2200)}
+function show(title,body,options=[],extra=''){let d=$('dialog');d.innerHTML=`<h2>${title}</h2><p>${body}</p>${extra}<div class="options" id="opts"></div><div id="dialogActions"></div>`;let opts=d.querySelector('#opts');options.forEach(o=>{let b=document.createElement('button');b.className='option';b.innerHTML=`<span class="emoji">${o.emoji||'✨'}</span><strong>${o.title}</strong><small>${o.desc||''}</small>`;b.onclick=()=>{if(o.action)o.action()};opts.appendChild(b)});$('overlay').style.display='flex';}
+function close(){ $('overlay').style.display='none';save();drawWorld()}
+function actionBtn(label,fn,secondary=false){let b=document.createElement('button');b.textContent=label;if(secondary)b.className='secondary';b.onclick=fn;$('dialogActions').appendChild(b)}
+function distance(a){return Math.hypot(state.x-a.x,state.z-a.z)}
+function move(dx,dz){state.x=Math.max(-7.2,Math.min(7.2,state.x+dx));state.z=Math.max(-5.3,Math.min(6.1,state.z+dz));state.dir=Math.atan2(dx,dz);checkHint();drawWorld()}
+function nearest(){let arr=Object.entries(world).map(([k,p])=>({k,p,d:distance(p)})).sort((a,b)=>a.d-b.d);return arr[0].d<2.25?arr[0].k:''}
+function checkHint(){let n=nearest();$('hint').textContent=n?({helper:'Tap E to chat with Pip 💬',home:'Tap E to decorate your home 🏡',shop:'Tap E to visit the market 🛍️',bank:'Tap E to save your coins 🐷',pet:'Tap E to meet the pets 🐾',treasure:'Tap E to open the treasure chest 💎'}[n]):'Explore with the arrows · Find coins · Visit places to interact';}
+function interact(){let n=nearest();if(!n){toast('Keep exploring, Princess! Walk closer to a place to interact.');return}
+if(n==='helper'){if(state.quest===0){show('🧚 Meet Pip!','“Welcome, Princess Natasha! Our kingdom is full of little treasures. Help me collect some coins, then you can choose a pet and make your home magical.”',[{emoji:'🪙',title:'Let’s go!',desc:'Start the royal quest',action:()=>{state.quest=1;state.stars++;updateHUD();close();toast('Quest started! Find the sparkling coins ✨')}}]);actionBtn('🔊 Hear Pip',()=>speak('Welcome, Princess Natasha! Our kingdom is full of little treasures. Help me collect some coins, then you can choose a pet and make your home magical.'));actionBtn('Close',close,true)}else{show('🧚 Pip’s tip','You can collect coins, adopt a pet, decorate your home and save for bigger treasures. What a lovely kingdom you are building!',[{emoji:'📖',title:'Read the story',desc:'Open your storybook',action:()=>{close();openStory(0)}}]);actionBtn('🔊 Hear Pip',()=>speak('You can collect coins, adopt a pet, decorate your home and save for bigger treasures. What a lovely kingdom you are building!'));actionBtn('Close',close,true)}}
+if(n==='home'){show('🏡 Natasha’s Dream Home','This little cottage is yours! Use your coins to make it feel like home. A cosy home is built one choice at a time.',[
+{emoji:'🌷',title:'Flower garden',desc:'6 coins · Pretty flowers',action:()=>buyItem('flowerbed',6,'Your flower garden is blooming! 🌷')},
+{emoji:'🌈',title:'Rainbow arch',desc:'8 coins · A magical doorway',action:()=>buyItem('rainbow',8,'A rainbow now welcomes you home! 🌈')},
+{emoji:'🛋️',title:'Cosy sofa',desc:'5 coins · Interior upgrade',action:()=>buyItem('sofa',5,'A cosy sofa has been added to your home! 🛋️')}
+]);actionBtn('Close',close,true)}
+if(n==='shop'){show('🛍️ Royal Market','Spend thoughtfully, Princess. You can enjoy a treat and still keep saving for your bigger dreams.',[
+{emoji:'🧁',title:'Festival cupcake',desc:'2 coins · A little treat',action:()=>buyConsumable(2,'A delicious cupcake! A treat can be part of a plan. 🧁')},
+{emoji:'📚',title:'Fairytale book',desc:'4 coins · A new story',action:()=>buyConsumable(4,'A brand-new story to read! 📚')},
+{emoji:'🧺',title:'Treasure basket',desc:'5 coins · Helps find coins',action:()=>buyConsumable(5,'Your treasure basket sparkles! ✨')}
+]);actionBtn('Close',close,true)}
+if(n==='bank'){show('🐷 Royal Savings Bank','You have '+state.coins+' coins to spend. How many would you like to save for a bigger goal?',[
+{emoji:'🪙',title:'Save 3 coins',desc:'Keep a little for later',action:()=>saveCoins(3)},
+{emoji:'💰',title:'Save 5 coins',desc:'A bigger step towards a dream',action:()=>saveCoins(5)},
+{emoji:'🌟',title:'Save 10 coins',desc:'Super saver choice',action:()=>saveCoins(10)}
+]);actionBtn('Close',close,true)}
+if(n==='pet'){show('🐾 Pet Rescue','A tiny friend is looking for a loving home. Choose a pet! Pets cost coins to adopt, so check your budget first.',[
+{emoji:'🐱',title:'Mittens the kitten',desc:'8 coins · Curious and cuddly',action:()=>adopt('Mittens','🐱',8)},
+{emoji:'🐶',title:'Biscuit the puppy',desc:'10 coins · Playful and loyal',action:()=>adopt('Biscuit','🐶',10)},
+{emoji:'🐰',title:'Clover the bunny',desc:'7 coins · Gentle and bouncy',action:()=>adopt('Clover','🐰',7)},
+{emoji:'🐢',title:'Pebble the turtle',desc:'5 coins · Calm and sweet',action:()=>adopt('Pebble','🐢',5)}
+]);actionBtn('Close',close,true)}
+if(n==='treasure'){if(!state.items.includes('treasureOpened')){show('💎 The Hidden Treasure!','You found a little treasure chest tucked behind the garden path. Inside are 6 gold coins! What a discovery.',[{emoji:'🪙',title:'Open the chest',desc:'Collect 6 coins',action:()=>{state.items.push('treasureOpened');state.coins+=6;state.stars++;if(state.quest<5)state.quest=5;updateHUD();close();toast('+6 coins! You found hidden treasure! 💎')}}]);}else{show('💎 Empty chest, happy heart!','You already found this treasure. Keep exploring, saving and caring for your pets to unlock more adventures.',[]);actionBtn('Close',close,true)}}
+}
+function buyItem(id,cost,msg){if(state.items.includes(id)){toast('You already have this decoration!');return}if(state.coins<cost){toast('Not enough coins yet. Try a quest or collect treasure!');return}state.coins-=cost;state.items.push(id);state.stars++;if(state.quest===3)state.quest=4;updateHUD();close();toast(msg)}
+function buyConsumable(cost,msg){if(state.coins<cost){toast('Not enough coins yet. Maybe save up or collect treasure first!');return}state.coins-=cost;state.stars++;updateHUD();close();toast(msg)}
+function saveCoins(n){if(state.coins<n){toast('You need a few more coins for that saving choice.');return}state.coins-=n;state.saved+=n;state.stars++;if(state.quest===2)state.quest=3;updateHUD();close();toast('You saved '+n+' coins! Future Natasha says thank you. 🐷')}
+function adopt(name,emoji,cost){if(state.pets.some(p=>p.name===name)){toast('You already adopted '+name+'!');return}if(state.coins<cost){toast('Not enough coins yet. Keep exploring to earn more!');return}state.coins-=cost;state.pets.push({name,emoji});state.stars++;if(state.quest===2)state.quest=3;else if(state.quest===1)state.quest=2;updateHUD();close();toast(name+' is now part of your family! Give them a lovely home. 💖')}
+const stories=[
+['Chapter 1: A Kingdom of Your Own','Once upon a bright and breezy morning, Princess Natasha discovered a little cottage beside a magical garden. It was not the biggest castle in the world, but it could become the cosiest home in the kingdom. Pip the palace helper handed Natasha a tiny purse. “These coins are yours,” Pip said. “You can spend some, save some, and choose what matters most to you.” Natasha smiled. A new adventure had begun.'],
+['Chapter 2: A Friend to Keep','At the Pet Rescue, Natasha heard a tiny meow, a happy bark and a soft little hop. Each animal needed a safe, loving home. Natasha checked the coins in her purse and thought carefully. “A pet is not just something to buy,” she remembered. “It is a friend I must care for.” She chose a friend she could afford and promised to give them kindness, food and playtime.'],
+['Chapter 3: The Treasure Chest','A sparkle peeked out from behind a path stone. Natasha brushed away the leaves and found a treasure chest! Inside were six golden coins. She could spend them right away, or save them towards a bigger dream. Natasha knew there was no single perfect choice. She thought about what she wanted most, made a plan, and carried on exploring.']
+];
+function speak(t){if(!('speechSynthesis'in window)){toast('Audio narration is not available in this browser.');return}speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(t);u.lang='en-SG';u.rate=.88;u.pitch=1.12;speechSynthesis.speak(u)}
+function openStory(i=0){state.story=(i+stories.length)%stories.length;let s=stories[state.story];show('📖 '+s[0],s[1],[]);actionBtn('🔊 Listen to chapter',()=>speak(s[1]));actionBtn('← Previous',()=>openStory(state.story-1),true);actionBtn('Next chapter →',()=>openStory(state.story+1));actionBtn('Close',close,true)}
+$('storyBtn').onclick=()=>openStory(state.story);$('bagBtn').onclick=()=>{show('🎒 My Treasures','Coins to spend: '+state.coins+' · Coins saved: '+state.saved+' · Stars earned: '+state.stars+' · Home decorations: '+state.items.filter(x=>['flowerbed','rainbow','sofa'].includes(x)).length+' · Pets: '+(state.pets.map(p=>p.emoji+' '+p.name).join(', ')||'No pets yet. Visit Pet Rescue!'),[]);actionBtn('📖 Storybook',()=>openStory(state.story));actionBtn('Close',close,true)};
+$('act').onclick=interact;
+document.querySelectorAll('[data-dir]').forEach(b=>{let timer=null;const step=()=>{let d=b.dataset.dir;if(d==='up')move(0,-.55);if(d==='down')move(0,.55);if(d==='left')move(-.55,0);if(d==='right')move(.55,0)};const stop=()=>{if(timer){clearInterval(timer);timer=null}};b.addEventListener('click',e=>{e.preventDefault();step()});b.addEventListener('pointerdown',e=>{e.preventDefault();step();stop();timer=setInterval(step,150)});b.addEventListener('touchstart',e=>{e.preventDefault();step();stop();timer=setInterval(step,150)},{passive:false});['pointerup','pointerleave','pointercancel','touchend','touchcancel'].forEach(ev=>b.addEventListener(ev,stop))});
+document.addEventListener('keydown',e=>{if($('overlay').style.display==='flex'){if(e.key==='Escape')close();return}let k=e.key.toLowerCase();if(k==='arrowup'||k==='w')move(0,-.55);if(k==='arrowdown'||k==='s')move(0,.55);if(k==='arrowleft'||k==='a')move(-.55,0);if(k==='arrowright'||k==='d')move(.55,0);if(k==='e'||k===' ')interact()});
+canvas.addEventListener('click',e=>{let r=canvas.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;const spots=[[-2.3,-.3],[2.5,.3],[-2.1,2.2],[2.3,4.2],[1.4,-4.3],[-5.8,.2],[5.6,1.1],[0,4.4]];let s=Math.min(W/18,H/13);for(let i=0;i<spots.length;i++){if(state.items.includes('coin'+i))continue;let p=project(...spots[i]);if(Math.hypot(mx-p.x,my-p.y)<s*.5){state.items.push('coin'+i);state.coins++;state.stars++;if(state.quest===1&&spots.filter((_,j)=>state.items.includes('coin'+j)).length>=3)state.quest=2;updateHUD();save();toast('+1 sparkling coin! 🪙');drawWorld();return}}});
+function init(){updateHUD();checkHint();if(!state.seenIntro){state.seenIntro=true;save();setTimeout(()=>{show('👑 Welcome, Princess Natasha!','Your dream cottage is waiting, and a magical kingdom is full of treasures. Explore, collect coins, adopt a pet, decorate your home and decide what to save for. Read each story or tap the speaker to listen!',[{emoji:'🗺️',title:'Start exploring',desc:'Let the adventure begin!',action:()=>{close();toast('Find Pip near the fountain! ✨')}}]);actionBtn('🔊 Hear the welcome',()=>speak('Welcome, Princess Natasha! Your dream cottage is waiting, and a magical kingdom is full of treasures. Explore, collect coins, adopt a pet, decorate your home and decide what to save for.'));},450)}}
+init();addEventListener('beforeunload',save);
 })();
 </script>
 </body>
