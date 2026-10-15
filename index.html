@@ -1,409 +1,49 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Natasha's Cozy Kingdom — 3D Money Adventure</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="theme-color" content="#f5c4d8"><title>Natasha's Princess Kingdom</title>
 <style>
-:root{--ink:#3d3a50;--cream:#fff8e9;--pink:#f6b7c9;--mint:#b9e3c6;--gold:#f5c95d;--purple:#9584d9}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:ui-rounded,"Trebuchet MS",system-ui,sans-serif;color:var(--ink);background:#b7d9d2}
-#world{position:fixed;inset:0}canvas{display:block;width:100%;height:100%;outline:none}
-.panel{background:rgba(255,250,239,.94);border:2px solid rgba(255,255,255,.92);box-shadow:0 5px 18px #3c53602a;border-radius:18px;backdrop-filter:blur(7px)}
-#topbar{position:fixed;left:12px;right:12px;top:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;pointer-events:none}
-#brand{padding:10px 14px;font-weight:900;font-size:clamp(13px,2vw,19px);line-height:1.12;pointer-events:auto}
-#brand small{display:block;font-size:10px;letter-spacing:1.4px;color:#8c7a9b;margin-top:4px}
-#stats{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end;pointer-events:auto}
-.stat{padding:9px 12px;font-size:clamp(12px,1.6vw,15px);font-weight:800;white-space:nowrap}
-#quest{position:fixed;top:88px;left:12px;width:min(290px,43vw);padding:13px 15px}
-#quest h3{margin:0 0 5px;font-size:16px;color:#7d68bc}#quest p{margin:5px 0;font-size:13px;line-height:1.35}
-#quest .tiny{font-size:11px;color:#8a8195}
-#help{position:fixed;bottom:12px;left:12px;padding:9px 12px;font-size:12px;max-width:calc(100vw - 24px)}
-#toast{position:fixed;left:50%;top:22%;transform:translateX(-50%);padding:12px 18px;font-weight:800;max-width:90vw;text-align:center;display:none;z-index:8}
-#interaction{position:fixed;bottom:20px;right:20px;border:0;border-radius:50%;width:78px;height:78px;background:linear-gradient(145deg,#f7d16c,#f4a6bb);color:#593d66;font-size:14px;font-weight:900;box-shadow:0 6px 0 #d78ea6;display:none}
-#touchpad{position:fixed;bottom:18px;left:18px;width:130px;height:130px;display:none;touch-action:none}
-#touchpad .pad{position:absolute;inset:0;border-radius:50%;background:#fff7e6a8;border:2px solid #fff;box-shadow:0 4px 15px #344a5220}
-#stick{position:absolute;width:48px;height:48px;left:41px;top:41px;border-radius:50%;background:#f6b7c9;border:3px solid white;box-shadow:0 3px 8px #8b607a55;touch-action:none}
-#modal{position:fixed;inset:0;background:#263b3c66;display:none;align-items:center;justify-content:center;padding:14px;z-index:10}
-#box{width:min(510px,100%);max-height:85vh;overflow:auto;padding:22px}
-#box h2{margin:0 0 8px;color:#7967b6;font-size:23px}#box p{line-height:1.45;margin:8px 0 13px}
-.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}
-button{font:inherit;cursor:pointer;border:0;border-radius:13px;padding:11px 14px;font-weight:800;color:#453d58;background:#eee5ff;box-shadow:0 3px 0 #c9b9ee}
-button.primary{background:#bde8cb;box-shadow:0 3px 0 #8fc7a0}button.gold{background:#f7d779;box-shadow:0 3px 0 #dcb650}button.pink{background:#f7c2d1;box-shadow:0 3px 0 #db9caf}
-button:active{transform:translateY(2px);box-shadow:none}
-.itemgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-.item{background:#fffdf5;border:1px solid #eee1ce;border-radius:13px;padding:11px}
-.item b{display:block;margin-bottom:4px}.item small{display:block;color:#776e83;line-height:1.3;margin-bottom:8px}
-label{display:block;font-weight:800;margin:12px 0 5px}select,input[type=color]{width:100%;padding:10px;border-radius:10px;border:1px solid #ddd2eb;background:#fff}
-#inventory{position:fixed;right:12px;top:87px;width:150px;padding:10px 12px;font-size:12px}
-#inventory strong{font-size:13px}#inventory .line{display:flex;justify-content:space-between;margin-top:6px}
-@media(max-width:650px){#quest{top:82px;width:205px;padding:10px}#quest h3{font-size:14px}#quest p{font-size:11px}#inventory{top:auto;bottom:158px;width:135px;font-size:11px}#help{bottom:8px;left:8px;font-size:10px;max-width:calc(100vw - 16px);padding:7px 9px}#touchpad,#interaction{display:block}#brand{padding:8px 10px}#stats{gap:4px}.stat{padding:7px 8px;font-size:11px}#box{padding:17px}.itemgrid{grid-template-columns:1fr}}
-</style>
-</head>
-<body>
-<div id="world"></div>
-<div id="topbar">
- <div id="brand" class="panel">🌷 NATASHA'S COZY KINGDOM<small>EXPLORE • CREATE • LEARN</small></div>
- <div id="stats">
-  <div class="panel stat">🪙 <span id="coins">12</span></div>
-  <div class="panel stat">⭐ <span id="stars">0</span></div>
-  <button class="stat" id="customBtn">🎀 Style</button>
- </div>
-</div>
-<div id="quest" class="panel"><h3>✨ Today's little adventure</h3><p id="questText">Hello, Natasha! Find the shiny apples and bring them to the village market.</p><p class="tiny" id="questProgress">Collect 3 apples • Then visit the market stall</p></div>
-<div id="inventory" class="panel"><strong>🎒 Your basket</strong><div class="line"><span>🍎 Apples</span><b id="apples">0</b></div><div class="line"><span>🪵 Wood</span><b id="wood">0</b></div><div class="line"><span>🌼 Flowers</span><b id="flowers">0</b></div><div class="line"><span>🧵 Cloth</span><b id="cloth">0</b></div><div class="line"><span>🏡 Home level</span><b id="homeLevel">1</b></div></div>
-<div id="constructionHud" class="panel" style="display:none;position:fixed;left:50%;bottom:74px;transform:translateX(-50%);width:min(360px,86vw);padding:12px 15px;z-index:5">
- <div style="display:flex;justify-content:space-between;gap:10px;font-weight:900"><span>🛠️ Builders at work!</span><span id="buildTimer">02:00</span></div>
- <div style="font-size:12px;margin:5px 0 8px">Natasha's home is getting a magical makeover. Go explore while they work!</div>
- <div style="height:10px;background:#eadfeb;border-radius:8px;overflow:hidden"><div id="buildBar" style="height:100%;width:0%;background:linear-gradient(90deg,#f3a8c2,#a28ae5);transition:width .2s"></div></div>
-<div id="help" class="panel">Move: WASD / arrows • Drag mouse to look around • On touch: joystick to move, drag world to look • Walk up to a character or sparkle and press <b>E</b> / tap INTERACT.</div>
-<div id="toast" class="panel"></div>
-<div id="touchpad"><div class="pad"></div><div id="stick"></div></div><button id="interaction">✨<br>INTERACT</button>
-<div id="modal"><div id="box" class="panel"></div></div>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script>
-(()=> {
-const $=id=>document.getElementById(id);
-const root=$('world');
-if(!window.THREE){root.innerHTML='<div style="padding:30px">The 3D world needs an internet connection to load. Please reopen this game while online.</div>';return;}
-const THREE=window.THREE;
-const scene=new THREE.Scene(); scene.background=new THREE.Color('#bfe4e0'); scene.fog=new THREE.Fog('#bfe4e0',28,78);
-const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,160);
-const renderer=new THREE.WebGLRenderer({antialias:true}); renderer.setPixelRatio(Math.min(devicePixelRatio,1.7)); renderer.setSize(innerWidth,innerHeight); renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap; renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.15; root.appendChild(renderer.domElement);
-scene.add(new THREE.HemisphereLight('#fff4d7','#719c91',2.05));
-const sun=new THREE.DirectionalLight('#fff0c8',3.1);sun.position.set(-12,22,12);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=-28;sun.shadow.camera.right=28;sun.shadow.camera.top=28;sun.shadow.camera.bottom=-28;scene.add(sun);
-const mat=(c,rough=.9)=>new THREE.MeshStandardMaterial({color:c,roughness:rough});
-const mats={grass:mat('#9bd49a'),path:mat('#e9d7b1'),wood:mat('#a96f4f'),cream:mat('#fff0ce'),roof:mat('#d98791'),leaf:mat('#5eaa79'),leaf2:mat('#8bcf8b'),stone:mat('#b8c7c0'),water:mat('#80d4d5',.3),gold:mat('#f5c94f',.35),pink:mat('#f3a8c2'),white:mat('#fff7e6'),dark:mat('#64506f'),skin:mat('#f2c7a6'),hair:mat('#8b553f'),shirt:mat('#ad92df'),skirt:mat('#f1a9c3')};
-function mesh(geo,material,x,y,z,shadow=true){const o=new THREE.Mesh(geo,material);o.position.set(x,y,z);o.castShadow=shadow;o.receiveShadow=true;scene.add(o);return o}
-function box(w,h,d,m,x,y,z){return mesh(new THREE.BoxGeometry(w,h,d),m,x,y,z)}
-function sphere(r,m,x,y,z,seg=12){return mesh(new THREE.SphereGeometry(r,seg,Math.max(8,seg-2)),m,x,y,z)}
-function cylinder(rt,rb,h,m,x,y,z,n=10){return mesh(new THREE.CylinderGeometry(rt,rb,h,n),m,x,y,z)}
-// Ground and paths
-box(110,.5,110,mats.grass,0,-.38,0);
-function path(x,z,w,d){box(w,.06,d,mats.path,x,-.08,z)}
-path(0,2,4,37);path(0,-1,34,3.5);path(-11,-9,3,18);path(12,7,3,17);path(7,-14,18,3);
-const water=box(12,.1,8,mats.water,-19,-.05,-18);water.rotation.y=.35;
-for(let i=0;i<13;i++){let x=-24+i*1.4;let r=.4+Math.random()*.35;sphere(r,mat(i%2?'#c0e7e4':'#e4f4e7'),x,.03,-18+Math.sin(i)*2,10)}
-// cottage
-function cottage(x,z,wall,roofColor,scale=1){
- box(4*scale,2.5*scale,3.5*scale,mat(wall),x,1.2*scale,z);
- const roof=mesh(new THREE.ConeGeometry(3.1*scale,1.8*scale,4),mat(roofColor),x,3.25*scale,z);roof.rotation.y=Math.PI/4;
- box(.8*scale,1.3*scale,.12*scale,mat('#8c6049'),x,0.65*scale,z+1.78*scale);
- for(const dx of [-1.15,1.15]){box(.62*scale,.7*scale,.1*scale,mat('#a8d9e7'),x+dx*scale,1.45*scale,z+1.79*scale);box(.08*scale,.8*scale,.13*scale,mat('#fff3d5'),x+dx*scale,1.45*scale,z+1.86*scale);box(.7*scale,.07*scale,.13*scale,mat('#fff3d5'),x+dx*scale,1.45*scale,z+1.86*scale)}
- box(.95*scale,.13*scale,.55*scale,mat('#f5d5a0'),x,0,z+2.05*scale);
-}
-cottage(8,-5,'#d7c6f5','#7e9ed7',1.1);cottage(-13,5,'#f3b9c7','#dca45d',.9);cottage(14,-13,'#c2e5ca','#d9848d',.85);
-// Natasha's own home is a distinct, upgradeable landmark (not a generic NPC cottage).
-const homeGroup=new THREE.Group();scene.add(homeGroup);homeGroup.position.set(-6,0,-5);
-let constructionGroup=null, constructionRemaining=0, constructionTotal=120, constructionActive=false, constructionPhase=0;
-function localBox(group,w,h,d,material,x,y,z){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;group.add(o);return o}
-function localCone(group,r,h,material,x,y,z,segments=4){const o=new THREE.Mesh(new THREE.ConeGeometry(r,h,segments),material);o.position.set(x,y,z);o.castShadow=true;group.add(o);return o}
-function buildHome(level){
- while(homeGroup.children.length) {const o=homeGroup.children[homeGroup.children.length-1]; homeGroup.remove(o); if(o.geometry)o.geometry.dispose(); if(o.material){if(Array.isArray(o.material))o.material.forEach(m=>m.dispose&&m.dispose());else if(o.material.dispose)o.material.dispose();}}
- const castle=level>=10, tiers=Math.min(level,9);
- const wallColors=['#f5d6bd','#f4c9df','#e8c7f7','#f7d3a3','#efbad4','#d9c5ff','#f6d4bc','#f2b6d0','#e6c9ff'];
- const wall=mat(castle?'#f7d8f0':wallColors[(tiers-1)%wallColors.length]);
- const roof=mat(castle?'#8d75d4':['#d9848d','#b97bd1','#dc8da7','#e5a35c','#ca7bb5','#8c9ee1','#db8fbb','#b48cde','#e8a0b8'][tiers-1]);
- const gold=mat('#f6d16d',.45), trim=mat('#fff1e8'), door=mat('#99624e'), windowMat=mat('#9de4ef',.35);
- if(!castle){
-   const extra=.0+Math.floor((level-1)/3)*.45;
-   localBox(homeGroup,4.2+extra,2.6+extra*.25,3.6,wall,0,1.25,0);
-   let r=localCone(homeGroup,3.1+extra*.3,1.9+extra*.15,roof,0,3.45+extra*.25,0,4);r.rotation.y=Math.PI/4;
-   localBox(homeGroup,.82,1.45,.12,door,0,.73,1.86);
-   for(const x of [-1.2,1.2]){localBox(homeGroup,.68,.72,.1,windowMat,x,1.55,1.86);localBox(homeGroup,.08,.78,.14,trim,x,1.55,1.93);localBox(homeGroup,.7,.07,.14,trim,x,1.55,1.93)}
-   localBox(homeGroup,1.0,.13,.55,trim,0,0,2.12);
-   // visible upgrade details: porch, chimney, balcony, flowers and gold trim appear as levels rise
-   if(level>=2){localBox(homeGroup,2.4,.18,1.0,mat('#c28d68'),0,.12,2.2);for(let x of [-1,0,1])localBox(homeGroup,.12,.9,.12,trim,x,.55,2.55)}
-   if(level>=3){localBox(homeGroup,.55,1.5,.55,mat('#d6b4a0'),1.5,3.35,-.65);localBox(homeGroup,.7,.12,.7,roof,1.5,4.12,-.65)}
-   if(level>=4){localBox(homeGroup,2.4,.16,.65,gold,0,2.45,1.89);localBox(homeGroup,2.5,.12,.8,mat('#f7d0df'),0,2.05,2.12)}
-   if(level>=5){for(let x of [-1.6,1.6]){localBox(homeGroup,.25,.75,.25,trim,x,2.75,1.55);localCone(homeGroup,.55,.85,roof,x,3.55,1.55,6)}}
-   if(level>=6){localBox(homeGroup,1.4,.18,1.0,mat('#e7b9a1'),0,2.9,-.2);for(let x of [-.6,0,.6])localBox(homeGroup,.12,.65,.12,gold,x,3.25,.25)}
-   if(level>=7){localCone(homeGroup,.55,.9,roof,-1.65,3.55,-.7,5);localCone(homeGroup,.55,.9,roof,1.65,3.55,-.7,5)}
-   if(level>=8){for(let x of [-1.65,1.65]){localBox(homeGroup,.08,.9,.08,gold,x,2.1,1.9);sphere(.12,gold,homeGroup.position.x+x,.0,homeGroup.position.z+2.0,8)}}
-   if(level>=9){localBox(homeGroup,2.8,.12,.8,gold,0,4.05,0);localCone(homeGroup,.4,.65,gold,0,4.55,0,5)}
- } else {
-   // Level 10: princess castle with central keep, side towers, pennants and gold details.
-   localBox(homeGroup,4.6,3.2,3.7,mat('#f5d9f2'),0,1.6,0);
-   localCone(homeGroup,3.5,2.0,mat('#8b78d5'),0,4.15,0,4).rotation.y=Math.PI/4;
-   localBox(homeGroup,.95,1.7,.14,door,0,.85,1.92);
-   localBox(homeGroup,1.2,.16,.8,mat('#f3c9e2'),0,.12,2.25);
-   for(const x of [-2.1,2.1]){
-     localBox(homeGroup,1.25,4.2,1.3,mat('#f8e2f6'),x,2.1,0);
-     localCone(homeGroup,.95,1.8,mat('#8b78d5'),x,5.1,0,8);
-     localBox(homeGroup,.55,1.05,.12,windowMat,x,2.35,.68);
-     localBox(homeGroup,.12,1.12,.14,gold,x,2.35,.76);
-     localCone(homeGroup,.08,.6,gold,x,6.2,0,5);
-   }
-   for(const x of [-.9,.9]){localBox(homeGroup,.62,.95,.12,windowMat,x,2.45,1.92);localBox(homeGroup,.08,1.0,.14,gold,x,2.45,2.0)}
-   localBox(homeGroup,1.8,.15,.8,gold,0,3.2,2.05);
-   const flag=localBox(homeGroup,.08,1.1,.08,gold,0,6.2,0);
-   const pennant=new THREE.Mesh(new THREE.ConeGeometry(.38,.65,3),mat('#ff9fc8'));pennant.position.set(.2,6.35,0);pennant.rotation.z=-Math.PI/2;homeGroup.add(pennant);
- }
- // Clearly labelled garden plot at the front of the home.
- localBox(homeGroup,4.7,.14,2.0,mat('#9a704f'),0,.05,4.0);
- localBox(homeGroup,4.4,.12,1.7,mat('#8acb83'),0,.14,4.0);
- for(let i=0;i<8;i++){const x=-1.75+(i%4)*1.16,z=3.45+Math.floor(i/4)*.95;localBox(homeGroup,.18,.22,.18,mat('#4b9c5f'),x,.29,z);sphere(.17,mat(['#f6a7c7','#f7d36c','#b8a5f4'][i%3]),homeGroup.position.x+x,.5,homeGroup.position.z+z,8)}
- // Sign makes it obvious this is Natasha's home.
- localBox(homeGroup,1.55,.65,.12,mat('#fff0d8'),0,1.0,2.75);
- localBox(homeGroup,1.43,.52,.05,mat('#edbad2'),0,1.0,2.83);
- // small decorative heart / gold star above the sign
- const heart=new THREE.Mesh(new THREE.OctahedronGeometry(.19),gold);heart.position.set(0,1.55,2.85);homeGroup.add(heart);
-}
-buildHome(1);
-function beginConstruction(){
- if(constructionActive){toast('The builders are already working on Natasha’s home!');return}
- if(state.home>=10){toast('Natasha’s princess castle is complete!');return}
- if(state.coins<8){toast('You need 8 coins to start the next home upgrade. Sell a few things or save up!');return}
- state.coins-=8;refresh();constructionActive=true;constructionRemaining=120;constructionTotal=120;
- constructionGroup=new THREE.Group();scene.add(constructionGroup);constructionGroup.position.copy(homeGroup.position);
- const wood=mat('#a8754e'),cloth=mat('#f7d2e2'),gold=mat('#f6d16d');
- // scaffold poles around the cottage; animated hammer sparks and a sign.
- for(const x of [-2.8,2.8])for(const z of [-.3,2.5]){localBox(constructionGroup,.12,4.1,.12,wood,x,2,z);localBox(constructionGroup,.15,.12,3.1,wood,x,3.2,1.1)}
- localBox(constructionGroup,5.8,.14,.12,wood,0,3.25,-.3);
- localBox(constructionGroup,2.0,.65,.12,cloth,0,3.7,2.75);
- const label=localBox(constructionGroup,1.8,.48,.05,mat('#fff4dc'),0,3.7,2.84);
- const cones=[];
- for(let i=0;i<4;i++){let c=new THREE.Mesh(new THREE.ConeGeometry(.22,.5,8),mat('#f5c95d'));c.position.set(-1.2+i*.8,.35,3.1);constructionGroup.add(c);cones.push(c)}
- constructionGroup.userData={cones,elapsed:0};
- $('constructionHud').style.display='block';toast('Construction started! Your builders are upgrading the home. You can keep exploring!');
-}
-function finishConstruction(){
- constructionActive=false;if(constructionGroup){scene.remove(constructionGroup);constructionGroup=null}
- state.home++;state.stars+=2;buildHome(state.home);refresh();$('constructionHud').style.display='none';
- toast(state.home>=10?'✨ The Princess Castle is complete! Welcome home, Princess Natasha!':'✨ Home upgrade complete! Look at the new details and garden!');
-}
-
-function tree(x,z,s=1){cylinder(.25*s,.38*s,1.7*s,mat('#9a684b'),x,.55*s,z,8);sphere(1.1*s,mat('#65b77b'),x,.95*s,z,10);sphere(.8*s,mat('#8bd18a'),x+.55*s,1.35*s,z-.1*s,10);sphere(.75*s,mat('#4f9e71'),x-.55*s,1.25*s,z+.15*s,10);sphere(.2*s,mat('#f4c8da'),x+.2*s,1.9*s,z,8)}
-for(const [x,z,s] of [[-19,-8,1.3],[-22,4,1.2],[-18,12,1.3],[-10,14,1.1],[18,1,1.2],[22,10,1.35],[19,-19,1.1],[3,16,1.25],[-5,-17,1],[24,-8,1.3],[5,-22,1.1],[-15,-22,1.1]])tree(x,z,s);
-function flower(x,z,c){cylinder(.035,.045,.35,mat('#4d9e62'),x,.16,z,5);sphere(.13,mat(c),x,.35,z,8);sphere(.08,mat('#f6d56e'),x,.42,z,8)}
-for(let i=0;i<50;i++){const x=(Math.random()-.5)*45,z=(Math.random()-.5)*43;if(Math.abs(x)<3.5||Math.abs(z+1)<2)continue;flower(x,z,['#f4a8c5','#f7d66e','#b9a8ed','#fff3e4'][i%4])}
-// market stall
-function stall(x,z){box(3.5,1.7,.22,mat('#b9825d'),x,1.0,z);box(4,.18,2.2,mat('#b9825d'),x,2.05,z);for(let i=0;i<4;i++){box(.95,.15,2.15,mat(i%2?'#f4b5c8':'#fff0d7'),x-1.45+i*.97,2.22,z)}box(3.4,.12,1.2,mat('#e7b27b'),x,.8,z+1);for(let i=0;i<5;i++)sphere(.2,mat('#df5964'),x-1.25+i*.6,.95,z+1,9)}
-stall(1,-8);
-// named characters / simple cute villagers
-function person(x,z,shirt,hairColor,scale=1,isPlayer=false){
- const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
- // Legs and shoes
- const legs=[],arms=[];
- for(let side of [-1,1]){
-   const leg=new THREE.Mesh(new THREE.CapsuleGeometry(.115*scale,.34*scale,4,8),mat('#8d91b9'));
-   leg.position.set(side*.16*scale,.34*scale,0);leg.castShadow=true;g.add(leg);legs.push(leg);
-   const shoe=new THREE.Mesh(new THREE.SphereGeometry(.14*scale,10,8),mat('#f7e7de'));
-   shoe.scale.set(1,.55,1.25);shoe.position.set(side*.16*scale,.12*scale,.06*scale);g.add(shoe);
- }
- // Torso / dress. The player gets a flared skirt so the silhouette reads clearly as a girl.
- const body=new THREE.Mesh(new THREE.CapsuleGeometry(.31*scale,.52*scale,5,10),mat(shirt));
- body.position.y=1.18*scale;body.castShadow=true;g.add(body);
- if(isPlayer){
-   const skirt=new THREE.Mesh(new THREE.CylinderGeometry(.55*scale,.68*scale,.48*scale,16),mat('#f1a9c3'));
-   skirt.position.y=.86*scale;skirt.castShadow=true;g.add(skirt);
-   const waist=new THREE.Mesh(new THREE.CylinderGeometry(.3*scale,.34*scale,.13*scale,12),mat('#f7d4e0'));
-   waist.position.y=1.04*scale;g.add(waist);
-   // Hair falls down both sides of the head.
-   const hairBack=new THREE.Mesh(new THREE.SphereGeometry(.38*scale,14,12),mat(hairColor));
-   hairBack.scale.set(1.03,1.08,.92);hairBack.position.set(0,2.04*scale,-.10*scale);g.add(hairBack);
-   for(const side of [-1,1]){
-     const lock=new THREE.Mesh(new THREE.CapsuleGeometry(.105*scale,.55*scale,4,8),mat(hairColor));
-     lock.position.set(side*.28*scale,1.83*scale,.03*scale);lock.rotation.z=side*.08;g.add(lock);
-   }
- } else {
-   const hair=new THREE.Mesh(new THREE.SphereGeometry(.36*scale,12,8,0,Math.PI*2,0,Math.PI*.65),mat(hairColor));
-   hair.position.set(0,2.12*scale,-.03*scale);g.add(hair);
- }
- // Head and face are all children of the character group (no floating facial pieces).
- const head=new THREE.Mesh(new THREE.SphereGeometry(.33*scale,16,14),mats.skin);
- head.position.y=1.94*scale;head.castShadow=true;g.add(head);
- const eyeMat=mat('#493344',.5), whiteMat=mat('#fffaf2',.5);
- for(const side of [-1,1]){
-   const eyeWhite=new THREE.Mesh(new THREE.SphereGeometry(.075*scale,10,8),whiteMat);
-   eyeWhite.position.set(side*.115*scale,1.98*scale,.282*scale);g.add(eyeWhite);
-   const eye=new THREE.Mesh(new THREE.SphereGeometry(.042*scale,10,8),eyeMat);
-   eye.position.set(side*.115*scale,1.98*scale,.345*scale);g.add(eye);
-   if(isPlayer){
-     const lash=new THREE.Mesh(new THREE.BoxGeometry(.13*scale,.025*scale,.025*scale),mat(hairColor));
-     lash.position.set(side*.115*scale,2.055*scale,.31*scale);lash.rotation.z=side*.12;g.add(lash);
-   }
- }
- if(isPlayer){
-   // Small smile
-   const smile=new THREE.Mesh(new THREE.TorusGeometry(.075*scale,.012*scale,6,12,Math.PI),mat('#b96f79'));
-   smile.position.set(0,1.83*scale,.319*scale);smile.rotation.z=Math.PI;g.add(smile);
-   // A little bow/flower clip
-   const clip1=new THREE.Mesh(new THREE.SphereGeometry(.09*scale,8,8),mat('#f6d16f'));
-   clip1.position.set(.28*scale,2.18*scale,.08*scale);g.add(clip1);
-   for(let a=0;a<4;a++){const petal=new THREE.Mesh(new THREE.SphereGeometry(.06*scale,8,8),mat('#f5a7c4'));petal.position.set(.28*scale+Math.cos(a*Math.PI/2)*.09*scale,2.18*scale+Math.sin(a*Math.PI/2)*.09*scale,.08*scale);g.add(petal)}
- }
- for(let side of [-1,1]){
-   const a=new THREE.Mesh(new THREE.CapsuleGeometry(.105*scale,.38*scale,4,8),mat(shirt));
-   a.position.set(side*.39*scale,1.22*scale,0);a.rotation.z=side*-.18;g.add(a);arms.push(a);
- }
- return {group:g,legs,arms};
-}
-const player=person(0,5,'#f08db8','#e6b95e',1,true);player.group.scale.setScalar(1.0);
- // Princess styling: tiara, flowing pink cape, long blonde hair accents and a little wand.
- const princessGold=mat('#f7d46e',.35), princessPink=mat('#ff9fc8',.5), princessLilac=mat('#d9c6ff',.45);
- function attachPrincessPart(geo,material,x,y,z){const o=new THREE.Mesh(geo,material);o.position.set(x,y,z);o.castShadow=true;player.group.add(o);return o}
- const tiara=attachPrincessPart(new THREE.TorusGeometry(.24,.045,7,18),princessGold,0,2.28,.02);tiara.scale.set(1,.55,1);
- const crownTop=attachPrincessPart(new THREE.ConeGeometry(.22,.32,5),princessGold,0,2.47,.02);crownTop.rotation.y=Math.PI/5;
- const gem=attachPrincessPart(new THREE.SphereGeometry(.07,10,8),mat('#ff6fa8',.35),0,2.43,.24);
- const cape=attachPrincessPart(new THREE.ConeGeometry(.48,.85,12),princessPink,0,.9,-.35);cape.rotation.x=Math.PI;
- const wandStick=attachPrincessPart(new THREE.CylinderGeometry(.025,.035,.65,8),princessGold,.52,1.05,.04);wandStick.rotation.z=-.2;
- const wandStar=attachPrincessPart(new THREE.OctahedronGeometry(.13),princessGold,.58,1.42,.04);
-let custom={hair:'#8b553f',dress:'#ad92df',skin:'#f2c7a6',hat:'none'};
-const villagers=[
- {name:'Mimi the Market Keeper',kind:'market',x:1,z:-5,person:person(1,-5,'#e7a4c2','#74442f',1.05),desc:'I buy your lovely things and sell useful supplies!'},
- {name:'Pip the Crafting Fox',kind:'craft',x:-7,z:1,desc:'Bring me wood and flowers and we can make something special!',animal:true},
- {name:'Grandma Willow',kind:'story',x:10,z:3,person:person(10,3,'#91c9a9','#d6b57a',1.05),desc:'Every coin has a choice attached to it. What will you choose?'},
- {name:'Home Sweet Home',kind:'home',x:-6,z:-3,desc:'Your cosy cottage is waiting for a little love!'}
-];
-function fox(x,z){const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);let b=new THREE.Mesh(new THREE.SphereGeometry(.5,12,10),mat('#e89b61'));b.position.y=.55;g.add(b);let h=new THREE.Mesh(new THREE.SphereGeometry(.34,12,10),mat('#efb77b'));h.position.set(0,.9,.25);g.add(h);for(let s of [-1,1]){let e=new THREE.Mesh(new THREE.ConeGeometry(.13,.35,6),mat('#d57d48'));e.position.set(s*.2,1.17,.2);g.add(e)}let tail=new THREE.Mesh(new THREE.ConeGeometry(.2,.7,8),mat('#f2d4b4'));tail.position.set(0,.58,-.55);tail.rotation.x=-.7;g.add(tail);return g}
-villagers[1].person={group:fox(-7,1)};
-function sign(x,z,text){box(1.2,.85,.12,mat('#b9865d'),x,.65,z);const post=cylinder(.06,.08,1.2,mat('#986544'),x,.1,z,7);}
-// collectable resources
-const resources=[];function collectible(kind,x,z){let group=new THREE.Group();group.position.set(x,0,z);scene.add(group);let m;
- if(kind==='apple'){m=new THREE.Mesh(new THREE.SphereGeometry(.3,12,10),mat('#e85d65'));m.position.y=.35;group.add(m);let leaf=new THREE.Mesh(new THREE.SphereGeometry(.1,8,6),mat('#63aa6c'));leaf.position.set(.13,.63,0);group.add(leaf)}
- if(kind==='wood'){m=new THREE.Mesh(new THREE.CylinderGeometry(.15,.18,.7,8),mat('#a56c49'));m.rotation.z=Math.PI/2;m.position.y=.2;group.add(m)}
- if(kind==='flower'){m=new THREE.Mesh(new THREE.SphereGeometry(.18,8,8),mat('#f2a5c2'));m.position.y=.45;group.add(m);for(let a=0;a<5;a++){let p=new THREE.Mesh(new THREE.SphereGeometry(.1,7,6),mat('#f8d66c'));p.position.set(Math.cos(a*1.256)*.16,.45+Math.sin(a*1.256)*.16,0);group.add(p)}}
- if(kind==='cloth'){m=new THREE.Mesh(new THREE.BoxGeometry(.42,.1,.35),mat('#b7a0ef'));m.position.y=.2;group.add(m)}
- group.userData={kind,baseY:0,phase:Math.random()*5,active:true};resources.push(group);return group;
-}
-for(const [x,z] of [[-10,-12],[-14,-4],[-18,1],[-7,9],[-4,12],[12,-1],[15,5],[19,-4]])collectible('apple',x,z);
-for(const [x,z] of [[-14,-11],[-20,8],[20,14],[-9,16],[5,-20]])collectible('wood',x,z);
-for(const [x,z] of [[-3,-12],[-2,11],[5,12],[16,1],[-17,-15],[7,-18]])collectible('flower',x,z);
-collectible('cloth',12,-11);collectible('cloth',-12,10);
-// sparkle tokens
-const stars3=[];for(const [x,z] of [[-17,-5],[17,-11],[6,15],[-3,-20],[20,3]]){let o=mesh(new THREE.OctahedronGeometry(.35),mats.gold,x,.85,z);o.userData={kind:'star',baseY:.85,phase:Math.random()*5,active:true};stars3.push(o);resources.push(o)}
-// player controls and economy
-const state={coins:12,stars:0,apples:0,wood:0,flowers:0,cloth:0,saved:0,home:1,crafts:0,sold:0,questDone:false};
-function refresh(){for(let k of ['coins','stars','apples','wood','flowers','cloth'])$(k).textContent=state[k];$('homeLevel').textContent=state.home;updateQuest()}
-function updateQuest(){if(state.apples>=3&&!state.questDone){$('questText').textContent='Lovely collecting! Visit Mimi at the market to trade your apples for coins.';$('questProgress').textContent='Next: sell 3 apples at the market'}else if(state.questDone){$('questText').textContent='You did it! Make a craft, save a coin, or explore for treasure.';$('questProgress').textContent='Free play: explore, trade and create!'}else{$('questText').textContent='Find the shiny apples and bring them to the village market.';$('questProgress').textContent='Collect 3 apples • '+state.apples+'/3 collected'}}
-let toastTimer;function toast(t){$('toast').textContent=t;$('toast').style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').style.display='none',2600)}
-function modal(title,body,buttons=[]){
- const box=$('box');
- box.replaceChildren();
- const h=document.createElement('h2');h.textContent=title;box.appendChild(h);
- const content=document.createElement('div');content.innerHTML=body;box.appendChild(content);
- const actions=document.createElement('div');actions.className='actions';box.appendChild(actions);
- for(const b of buttons){const el=document.createElement('button');el.textContent=b.label;el.className=b.cls||'';el.addEventListener('click',()=>{if(typeof b.fn==='function')b.fn()},{once:true});actions.appendChild(el)}
- const close=document.createElement('button');close.textContent='Back to the village';close.addEventListener('click',closeModal,{once:true});actions.appendChild(close);
- $('modal').style.display='flex';
-}
-function closeModal(){$('modal').style.display='none'}
-function doSell(kind){if(state[kind]>0){const prices={apples:3,flowers:2,wood:2,cloth:4};state[kind]--;state.coins+=prices[kind];state.sold++;toast('Sold 1 '+kind+' for '+prices[kind]+' coins!');if(state.apples>=0&&state.sold>=3)state.questDone=true;refresh()}else toast('Your basket is empty for that item. Explore to find some!')}
-function market(){modal('🍓 Mimi’s Market','<p>Welcome, Natasha! Selling things earns coins. You can also buy supplies for crafting.</p><div class="itemgrid"><div class="item"><b>🍎 Apple — sell for 3 coins</b><small>You found it outside. Turn a collectable into pocket money.</small><button class="primary" onclick="window.gameSell(&#39;apples&#39;)">Sell apple</button></div><div class="item"><b>🌼 Flower — sell for 2 coins</b><small>Flowers are pretty, and other villagers love them.</small><button onclick="window.gameSell(&#39;flowers&#39;)">Sell flower</button></div><div class="item"><b>🪵 Wood — sell for 2 coins</b><small>Or keep it to build something later.</small><button onclick="window.gameSell(&#39;wood&#39;)">Sell wood</button></div><div class="item"><b>🧵 Cloth — sell for 4 coins</b><small>A rarer find, so it can earn a little more.</small><button onclick="window.gameSell(&#39;cloth&#39;)">Sell cloth</button></div></div><p><b>Money tip:</b> If you sell something, you get coins now. If you save your materials, you may be able to craft something worth more.</p>',[])}
-window.gameSell=doSell;
-function crafting(){modal('🦊 Pip’s Crafting Corner','<p>Let’s turn your things into something useful! Crafting costs materials, but a crafted item can be worth more.</p><div class="itemgrid"><div class="item"><b>🌷 Flower crown</b><small>Needs 2 flowers + 1 cloth. Value: 10 coins.</small><button class="primary" onclick="window.craft(&#39;crown&#39;)">Craft crown</button></div><div class="item"><b>🪴 Garden planter</b><small>Needs 3 wood + 1 flower. Value: 9 coins.</small><button onclick="window.craft(&#39;planter&#39;)">Craft planter</button></div><div class="item"><b>🧸 Patchwork teddy</b><small>Needs 2 cloth + 1 flower. Value: 12 coins.</small><button class="pink" onclick="window.craft(&#39;teddy&#39;)">Craft teddy</button></div></div><p><b>Money tip:</b> Materials have value too. Compare what you spend with what you earn.</p>',[])}
-window.craft=(type)=>{let req={crown:{flowers:2,cloth:1,cost:10,name:'flower crown'},planter:{wood:3,flowers:1,cost:9,name:'garden planter'},teddy:{cloth:2,flowers:1,cost:12,name:'patchwork teddy'}}[type];let ok=Object.keys(req).filter(k=>['wood','flowers','cloth'].includes(k)).every(k=>state[k]>=(req[k]||0));if(!ok){toast('Not quite enough materials yet. Keep exploring!');return}for(let k of ['wood','flowers','cloth'])state[k]-=req[k]||0;state.coins+=req.cost;state.crafts++;state.stars++;refresh();toast('You crafted a '+req.name+' and earned '+req.cost+' coins!');crafting()};
-function home(){const remaining=10-state.home;modal('🏡 Princess Natasha’s Home',
- '<p>This is <b>your</b> home, Princess Natasha! Every upgrade adds visible details to the cottage and garden. After 10 upgrades, it becomes a princess castle. Each construction takes <b>2 minutes</b>, but you can keep walking around and collecting things while the builders work.</p>'+
- '<div class="itemgrid"><div class="item"><b>🌷 Home upgrade '+(state.home+1)+'/10</b><small>Costs 8 coins. Adds visible cottage details and improves the garden. Time: 2 minutes.</small><button class="primary" '+(constructionActive||state.home>=10?'disabled':'')+' onclick="window.startHomeUpgrade()">Start construction</button></div>'+
- '<div class="item"><b>🌸 Garden makeover</b><small>Your garden is the green flower plot right in front of the house. Each home upgrade adds more flowers and decorations.</small><button class="pink" onclick="window.showGarden()">Show me the garden</button></div>'+
- '<div class="item"><b>🐷 Save for the castle</b><small>Keep coins for later upgrades instead of spending them all at once.</small><button onclick="window.saveCoins()">Save 5 coins</button></div></div>'+
- '<p><b>Progress:</b> '+state.home+'/10 upgrades complete. '+(state.home>=10?'Your princess castle is ready!':'Only '+remaining+' more upgrade'+(remaining===1?'':'s')+' until the castle!')+'</p>'+
- (constructionActive?'<p><b>Construction is already underway.</b> Time remaining: <span id="menuBuildTimer">'+formatTime(constructionRemaining)+'</span></p>':''),
- []);
-}
-function formatTime(sec){sec=Math.max(0,Math.ceil(sec));return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0')}
-window.startHomeUpgrade=()=>{closeModal();beginConstruction()};
-window.showGarden=()=>{toast('Look for the green flower plot directly in front of Natasha’s home!');closeModal()};
-
-function story(){modal('🌳 Grandma Willow’s Story','<p>“Imagine you have 10 coins,” Grandma says. “You could spend 6 on a toy and have 4 left. Or save all 10 toward a bigger treasure.”</p><p>Which choice feels right today? There is no wrong answer — just different things you can do with your money.</p><div class="itemgrid"><div class="item"><b>🎁 Spend some</b><small>Enjoy something now and keep a little back.</small><button class="pink" onclick="window.storyChoice(&#39;spend&#39;)">Choose spending</button></div><div class="item"><b>🐷 Save for later</b><small>Wait a little longer for a bigger goal.</small><button class="primary" onclick="window.storyChoice(&#39;save&#39;)">Choose saving</button></div></div>',[])}
-window.storyChoice=(choice)=>{state.stars++;refresh();toast(choice==='save'?'Wise planning! Saving can help with bigger dreams.':'Enjoying a treat is fun — it helps to check what you have left!');story()};
-function styleMenu(){
- modal('🎀 Make your character yours', `<p>Pick a look for your little adventurer.</p><label>Dress colour</label><input id="dressColor" type="color" value="${custom.dress}"><label>Hair colour</label><input id="hairColor" type="color" value="${custom.hair}"><label>Skin tone</label><select id="skinColor"><option value="#f2c7a6">Peach</option><option value="#d89a70">Warm tan</option><option value="#9b6347">Brown</option><option value="#f5ddc4">Light cream</option></select><label>Head accessory</label><select id="hatStyle"><option value="none">No accessory</option><option value="flower">Flower crown</option><option value="crown">Golden crown</option></select><button class="primary" id="wearLookBtn">Wear this look</button>`, []);
- const wear=$('wearLookBtn'); if(wear) wear.addEventListener('click',window.applyStyle,{once:true});
-}
-window.applyStyle=()=>{custom.dress=$('dressColor').value;custom.hair=$('hairColor').value;custom.skin=$('skinColor').value;custom.hat=$('hatStyle').value;player.group.children.forEach(o=>{if(o.material&&o.material.color){if(o.geometry.type==='CapsuleGeometry'&&o.position.y>1&&o.position.y<1.5)o.material.color.set(custom.dress);if(o.geometry.type==='SphereGeometry'&&o.position.y>1.8&&o.position.z<.15)o.material.color.set(custom.hair);}});toast('A new look! Your adventure, your style.');closeModal()};
-let interactionBusy=false;
-function interact(){
- if(interactionBusy||$('modal').style.display==='flex')return;
- interactionBusy=true;
- try{
-  const p=player.group.position;
-  const choices=[];
-  for(const v of villagers){if(Number.isFinite(v.x)&&Number.isFinite(v.z))choices.push({x:v.x,z:v.z,dist:Math.hypot(v.x-p.x,v.z-p.z),v});}
-  for(const o of resources){if(o&&o.userData&&o.userData.active&&o.position)choices.push({x:o.position.x,z:o.position.z,dist:Math.hypot(o.position.x-p.x,o.position.z-p.z),o});}
-  choices.sort((a,b)=>a.dist-b.dist);
-  if(!choices.length||choices[0].dist>3.1){toast('Walk closer to a person or sparkle to interact.');return}
-  const c=choices[0];
-  if(c.o){const kind=c.o.userData.kind;c.o.userData.active=false;scene.remove(c.o);if(kind==='star'){state.stars++;state.coins+=2;toast('Shiny treasure! +1 star and 2 coins.')}else{const key=kind==='apple'?'apples':kind==='flower'?'flowers':kind;if(Object.prototype.hasOwnProperty.call(state,key))state[key]++;toast(({apple:'Apple collected!',wood:'Wood collected!',flower:'Flower collected!',cloth:'Cloth collected!'})[kind]||'Collected!');}refresh();return}
-  switch(c.v.kind){case'market':market();break;case'craft':crafting();break;case'story':story();break;case'home':home();break;default:toast('Nothing to do here just yet.')}
- }catch(err){console.error('Interaction error:',err);toast('Oops! Try again in a moment.')}finally{interactionBusy=false}
-}
-let interactionKeyDown=false;
-window.addEventListener('keydown',e=>{const k=e.key.toLowerCase();keys[k]=true;if(k==='e'||e.key==='Enter'){if(!interactionKeyDown){interactionKeyDown=true;e.preventDefault();interact()}}if(e.key==='Escape')closeModal()});
-window.addEventListener('keyup',e=>{const k=e.key.toLowerCase();keys[k]=false;if(k==='e'||e.key==='Enter')interactionKeyDown=false});
-window.addEventListener('blur',()=>{interactionKeyDown=false;interactionBusy=false});
-$('interaction').onclick=interact;$('customBtn').onclick=styleMenu;$('modal').addEventListener('click',e=>{if(e.target===$('modal'))closeModal()});
-const keys={};let joy={x:0,z:0};const pad=$('touchpad'),stick=$('stick');let dragging=false;
-pad.addEventListener('pointerdown',e=>{dragging=true;pad.setPointerCapture(e.pointerId);moveStick(e)});pad.addEventListener('pointermove',e=>{if(dragging)moveStick(e)});function moveStick(e){let r=pad.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=e.clientX-cx,dy=e.clientY-cy,len=Math.hypot(dx,dy),max=40;if(len>max){dx=dx/len*max;dy=dy/len*max}stick.style.left=(41+dx)+'px';stick.style.top=(41+dy)+'px';joy.x=dx/max;joy.z=dy/max}function release(){dragging=false;joy={x:0,z:0};stick.style.left='41px';stick.style.top='41px'}pad.addEventListener('pointerup',release);pad.addEventListener('pointercancel',release);
-// Camera orbit: drag mouse on desktop, drag one finger on empty screen on touch.
-let camYaw=0, camHeight=5.8, camDistance=8;
-let cameraPointer=null, cameraLastX=0, cameraLastY=0, touchCameraActive=false;
-renderer.domElement.style.touchAction='none';
-renderer.domElement.addEventListener('contextmenu',e=>e.preventDefault());
-renderer.domElement.addEventListener('pointerdown',e=>{
- if($('modal').style.display==='flex')return;
- // Desktop: left-drag to orbit camera; on touch, drag anywhere except the joystick/interact controls.
- if(e.pointerType==='mouse' || e.pointerType==='pen'){
-   if(e.button!==0)return;
- } else {
-   if(e.clientX<155 && e.clientY>innerHeight-175)return;
-   if(e.clientX>innerWidth-115 && e.clientY>innerHeight-130)return;
- }
- cameraPointer=e.pointerId;cameraLastX=e.clientX;cameraLastY=e.clientY;touchCameraActive=e.pointerType!=='mouse';
- renderer.domElement.setPointerCapture(e.pointerId);
-});
-renderer.domElement.addEventListener('pointermove',e=>{
- if(cameraPointer!==e.pointerId)return;
- const dx=e.clientX-cameraLastX,dy=e.clientY-cameraLastY;cameraLastX=e.clientX;cameraLastY=e.clientY;
- camYaw-=dx*.008;camHeight=Math.max(3.8,Math.min(10.5,camHeight+dy*.025));
-});
-function endCameraDrag(e){if(cameraPointer===e.pointerId)cameraPointer=null}
-renderer.domElement.addEventListener('pointerup',endCameraDrag);
-renderer.domElement.addEventListener('pointercancel',endCameraDrag);
-let last=performance.now(), walk=0;
-function animate(now){requestAnimationFrame(animate);let dt=Math.min((now-last)/1000,.04);last=now;
- let sx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joy.x;
- let fz=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0)-joy.z;
- let len=Math.hypot(sx,fz);if(len>1){sx/=len;fz/=len}
- if(!$('modal').style.display||$('modal').style.display==='none'){
-   if(len>.1){
-     // WASD is relative to the camera view: W always moves toward the camera's forward horizon.
-     const forwardX=-Math.sin(camYaw), forwardZ=-Math.cos(camYaw);
-     const rightX=Math.cos(camYaw), rightZ=-Math.sin(camYaw);
-     const dx=rightX*sx+forwardX*fz, dz=rightZ*sx+forwardZ*fz;
-     player.group.position.x+=dx*5*dt;player.group.position.z+=dz*5*dt;
-     player.group.rotation.y=Math.atan2(dx,dz);
-     walk+=dt*10;player.legs.forEach((l,i)=>l.rotation.x=Math.sin(walk+i*Math.PI)*.55);player.arms.forEach((a,i)=>a.rotation.x=Math.sin(walk+i*Math.PI)*.2);
-   } else {player.legs.forEach(l=>l.rotation.x*=.75);player.arms.forEach(a=>a.rotation.x*=.75)}
- }
- player.group.position.x=Math.max(-27,Math.min(27,player.group.position.x));player.group.position.z=Math.max(-27,Math.min(27,player.group.position.z));
- const p=player.group.position;
- const desired=new THREE.Vector3(p.x+Math.sin(camYaw)*camDistance,camHeight,p.z+Math.cos(camYaw)*camDistance);
- camera.position.lerp(desired,.18);camera.lookAt(p.x,1.35,p.z);
- resources.forEach(o=>{if(o.userData.active){o.position.y=o.userData.baseY+.15+Math.sin(now/450+o.userData.phase)*.12;o.rotation.y+=dt*.7}});
- villagers.forEach(v=>{if(v.person&&v.person.group){v.person.group.rotation.y=Math.sin(now/1400+v.x)*.08}});
- if(state.pet&&!window.petObject){const pet=fox(p.x+1,p.z+1);pet.scale.setScalar(.45);window.petObject=pet}
- if(window.petObject&&state.pet){window.petObject.position.lerp(new THREE.Vector3(p.x-1,0,p.z+1),.04)}
- if(constructionActive){
-   constructionRemaining=Math.max(0,constructionRemaining-dt);
-   if(constructionGroup){
-     constructionPhase+=dt*5;
-     constructionGroup.userData.cones.forEach((c,i)=>{c.position.y=.35+Math.abs(Math.sin(constructionPhase+i*1.4))*.45;c.rotation.y+=dt*2});
-     constructionGroup.rotation.y=Math.sin(constructionPhase*.25)*.015;
-   }
-   $('buildTimer').textContent=formatTime(constructionRemaining);
-   $('buildBar').style.width=((constructionTotal-constructionRemaining)/constructionTotal*100)+'%';
-   const mt=document.getElementById('menuBuildTimer');if(mt)mt.textContent=formatTime(constructionRemaining);
-   if(constructionRemaining<=0)finishConstruction();
- }
- renderer.render(scene,camera)}
-requestAnimationFrame(animate);
-window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
-refresh();
-// Welcome speech for read/listen friendly play; browser voice starts only after user asks.
-function say(text){if('speechSynthesis'in window){speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(text);u.rate=.9;u.pitch=1.12;speechSynthesis.speak(u)}}
-$('brand').title='Tap the game controls and explore. Browser speech is available when story text is selected.';
+:root{--pink:#f5b9d0;--purple:#8f79cf;--cream:#fff8e9;--ink:#493d5d;--gold:#f5cd64}*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:ui-rounded,'Trebuchet MS',system-ui,sans-serif;background:#bfe5e1;color:var(--ink);touch-action:none;overscroll-behavior:none}#world{position:fixed;inset:0}canvas{display:block;width:100%;height:100%;touch-action:none}.panel{background:#fff9eced;border:2px solid #ffffffd9;border-radius:17px;box-shadow:0 4px 14px #4c41621c;backdrop-filter:blur(5px)}#top{position:fixed;top:env(safe-area-inset-top,8px);left:8px;right:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:6px;pointer-events:none}#brand{font-size:12px;font-weight:1000;padding:9px 10px;max-width:48%;pointer-events:auto}#brand small{display:block;font-size:9px;color:#8d7ba2;margin-top:3px;letter-spacing:1px}#stats{display:flex;gap:5px;pointer-events:auto}.stat,button{border:0;font:inherit;font-weight:900;color:var(--ink);border-radius:13px;background:#fff4d5;padding:10px 11px;box-shadow:0 3px 0 #d9c9a4}.stat{font-size:12px;padding:9px 10px;white-space:nowrap}button{touch-action:manipulation;cursor:pointer}button:active{transform:translateY(2px);box-shadow:none}#quest{position:fixed;left:8px;top:68px;width:min(210px,57vw);padding:10px 12px;font-size:11px;pointer-events:none}#quest b{display:block;font-size:12px;color:var(--purple);margin-bottom:3px}#quest p{margin:0;line-height:1.35}#bag{position:fixed;right:8px;top:68px;width:110px;padding:9px;font-size:10px;pointer-events:none}#bag strong{font-size:11px}#bag div{display:flex;justify-content:space-between;margin-top:4px}#joy{position:fixed;left:14px;bottom:calc(18px + env(safe-area-inset-bottom,0px));width:122px;height:122px;border-radius:50%;background:#fff7e8a8;border:2px solid #fff;box-shadow:0 4px 15px #344a5220;touch-action:none}#nub{position:absolute;width:46px;height:46px;left:36px;top:36px;border-radius:50%;background:var(--pink);border:3px solid #fff;box-shadow:0 3px 8px #8b607a55;pointer-events:none}#action{position:fixed;right:16px;bottom:calc(28px + env(safe-area-inset-bottom,0px));width:88px;height:88px;border-radius:50%;background:linear-gradient(145deg,#ffe18a,#f6a9c6);box-shadow:0 5px 0 #d78ea6;font-size:12px;display:flex;align-items:center;justify-content:center;text-align:center}#tip{position:fixed;left:150px;right:110px;bottom:calc(22px + env(safe-area-inset-bottom,0px));text-align:center;font-size:10px;color:#554a66;text-shadow:0 1px white;pointer-events:none}#toast{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);padding:12px 16px;max-width:88vw;text-align:center;font-weight:900;display:none;z-index:12}#shade{position:fixed;inset:0;background:#3e385966;display:none;align-items:center;justify-content:center;padding:12px;z-index:10;touch-action:pan-y}#sheet{width:min(480px,100%);max-height:80dvh;overflow:auto;padding:18px;touch-action:pan-y}#sheet h2{margin:0 0 8px;font-size:21px;color:var(--purple)}#sheet p{font-size:14px;line-height:1.4;margin:8px 0 12px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.item{background:#fffdf5;border:1px solid #eadfcf;border-radius:12px;padding:10px;font-size:12px}.item b{display:block;margin-bottom:5px}.item button{margin-top:8px;width:100%;padding:9px;font-size:12px}.primary{background:#bde8cb;box-shadow:0 3px 0 #8fc7a0}.pink{background:#f7c2d1;box-shadow:0 3px 0 #db9caf}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.actions button{flex:1}label{display:block;font-weight:800;margin:12px 0 5px}input[type=color],select{width:100%;padding:10px;border-radius:10px;border:1px solid #ddd2eb;background:#fff;font:inherit}.bar{height:9px;background:#eadfeb;border-radius:8px;overflow:hidden;margin-top:7px}.bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,#f3a8c2,#a28ae5)}#build{position:fixed;left:50%;bottom:140px;transform:translateX(-50%);width:min(310px,85vw);padding:10px 12px;font-size:11px;display:none;pointer-events:none}#buildhead{display:flex;justify-content:space-between;font-weight:900;font-size:12px}@media(min-width:700px){#joy{width:140px;height:140px}#nub{left:43px;top:43px}#quest{width:240px;font-size:13px}#bag{width:140px;font-size:12px}#action{width:94px;height:94px}}
+</style></head><body><div id="world"></div>
+<div id="top"><div id="brand" class="panel">👑 NATASHA'S KINGDOM<small>EXPLORE • COLLECT • CREATE</small></div><div id="stats"><div class="panel stat">🪙 <span id="coins">12</span></div><button class="stat" id="styleBtn">🎀 Style</button></div></div>
+<div id="quest" class="panel"><b>✨ Little adventure</b><p id="questText">Collect apples and flowers, trade them at the market, then grow your home into a castle!</p></div>
+<div id="bag" class="panel"><strong>🎒 Basket</strong><div><span>🍎 Apples</span><b id="apples">0</b></div><div><span>🌼 Flowers</span><b id="flowers">0</b></div><div><span>🪵 Wood</span><b id="wood">0</b></div><div><span>🧵 Cloth</span><b id="cloth">0</b></div><div><span>🏰 Home</span><b id="level">1/10</b></div></div>
+<div id="joy" aria-label="Movement joystick"><div id="nub"></div></div><button id="action">✨<br>Tap to interact</button><div id="tip">Drag to walk • Tap a character, item or home</div>
+<div id="build" class="panel"><div id="buildhead"><span>🛠️ Builders at work!</span><span id="timer">02:00</span></div><div>Explore while your home gets its magical makeover.</div><div class="bar"><span id="buildbar"></span></div></div><div id="toast" class="panel"></div>
+<div id="shade"><div id="sheet" class="panel"></div></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script><script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id),world=$('world');if(!window.THREE){world.innerHTML='<div style="padding:30px">Please connect to the internet and reload to start the 3D kingdom.</div>';return}const T=THREE;
+const scene=new T.Scene();scene.background=new T.Color('#bfe5e1');scene.fog=new T.Fog('#bfe5e1',35,75);const camera=new T.PerspectiveCamera(53,innerWidth/innerHeight,.1,130);const renderer=new T.WebGLRenderer({antialias:false,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.35));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=false;renderer.outputColorSpace=T.SRGBColorSpace;world.appendChild(renderer.domElement);
+scene.add(new T.HemisphereLight('#fff4dc','#7caa91',2.1));const sun=new T.DirectionalLight('#fff0c8',2.2);sun.position.set(-10,18,10);scene.add(sun);
+const material=(c)=>new T.MeshLambertMaterial({color:c});const mats={grass:material('#9bd49a'),path:material('#ead8b5'),pink:material('#f2a9c5'),roof:material('#d987a0'),cream:material('#fff0d2'),wood:material('#a96f4f'),leaf:material('#66b77c'),gold:material('#f5c94f'),water:material('#80d4d5'),skin:material('#f2c7a6'),hair:material('#e5bd58'),dress:material('#f18fba'),white:material('#fff7e6'),dark:material('#58455d'),blue:material('#9bd8e7')};
+const geo={box:new T.BoxGeometry(1,1,1),sphere:new T.SphereGeometry(1,10,8)};function addMesh(g,m,parent=scene){const o=new T.Mesh(g,m);parent.add(o);return o}function box(parent,w,h,d,m,x,y,z){let o=addMesh(new T.BoxGeometry(w,h,d),m,parent);o.position.set(x,y,z);return o}function ball(parent,r,m,x,y,z){let o=addMesh(new T.SphereGeometry(r,10,8),m,parent);o.position.set(x,y,z);return o}function cone(parent,r,h,m,x,y,z,n=5){let o=addMesh(new T.ConeGeometry(r,h,n),m,parent);o.position.set(x,y,z);return o}
+box(scene,90,.4,90,mats.grass,0,-.3,0);function path(x,z,w,d){box(scene,w,.04,d,mats.path,x,-.07,z)}path(0,1,4,37);path(0,-1,32,3);path(-10,-8,3,17);path(11,5,3,18);path(6,-13,17,3);
+const water=box(scene,9,.08,7,mats.water,-19,-.06,-16);water.rotation.y=.25;
+function tree(x,z,s=1){let t=new T.Group();t.position.set(x,0,z);scene.add(t);box(t,.3,1.5,.3,mats.wood,0,.7,0);ball(t,.9,mats.leaf,0,1.6,0);ball(t,.58,material('#8bd18a'),.45,1.9,0);ball(t,.55,material('#4f9e71'),-.45,1.8,.1)}for(let [x,z,s] of [[-20,-7,1],[-23,5,1],[-16,13,1],[-8,15,1],[18,0,1],[22,9,1],[18,-18,1],[4,16,1],[-4,-17,1],[24,-7,1],[4,-22,1],[-15,-21,1]])tree(x,z,s);
+// player with recognisable princess silhouette
+const player=new T.Group();scene.add(player);player.position.set(0,0,5);const pBody=ball(player,.32,mats.dress,0,1.25,0);pBody.scale.set(.9,1.3,.7);const skirt=cone(player,.66,.65,mats.dress,0,.72,0,16);skirt.rotation.x=Math.PI;const head=ball(player,.34,mats.skin,0,2.02,0);const haircap=ball(player,.38,mats.hair,0,2.12,-.06);haircap.scale.set(1,1,.9);for(let s of [-1,1]){let lock=ball(player,.12,mats.hair,s*.29,1.85,.02);lock.scale.y=1.7;ball(player,.045,mats.dark,s*.12,2.05,.29)}cone(player,.23,.27,mats.gold,0,2.42,0,5);ball(player,.08,mats.gold,0,2.55,0);const wand=box(player,.045,.65,.045,mats.gold,.48,1.28,.1);ball(player,.12,mats.pink,.48,1.65,.1);
+let custom={dress:'#f18fba',hair:'#e5bd58',skin:'#f2c7a6',accessory:'tiara'};
+function recolor(){mats.dress.color.set(custom.dress);mats.hair.color.set(custom.hair);mats.skin.color.set(custom.skin)}
+// home constructed as replaceable meshes
+const home=new T.Group();home.position.set(-10,0,-8);scene.add(home);let homeLevel=1;function clearGroup(g){while(g.children.length){const o=g.children[0];g.remove(o);if(o.geometry)o.geometry.dispose();if(o.material&&o.material.dispose)o.material.dispose();}}function buildHome(){clearGroup(home);let level=homeLevel,castle=level>=10;const wall=material(castle?'#f7d8f0':['#f5d6bd','#f4c9df','#e8c7f7','#f7d3a3','#efbad4','#d9c5ff','#f6d4bc','#f2b6d0','#e6c9ff'][Math.min(level-1,8)]);const roof=material(castle?'#8d75d4':['#d9848d','#b97bd1','#dc8da7','#e5a35c','#ca7bb5','#8c9ee1','#db8fbb','#b48cde','#e8a0b8'][Math.min(level-1,8)]);if(!castle){box(home,4+Math.floor((level-1)/3)*.3,2.5,3.5,wall,0,1.2,0);let r=cone(home,3.1,1.8,roof,0,3.15,0,4);r.rotation.y=Math.PI/4;box(home,.8,1.35,.12,mats.wood,0,.68,1.8);for(let x of [-1.2,1.2])box(home,.6,.7,.1,mats.blue,x,1.45,1.8);if(level>=2){box(home,2.4,.15,.8,material('#c28d68'),0,.12,2.1);for(let x of [-1,0,1])box(home,.12,.8,.12,mats.cream,x,.5,2.4)}if(level>=4){box(home,2.5,.15,.15,mats.gold,0,2.25,1.83);for(let x of [-1.5,1.5])cone(home,.45,.7,mats.gold,x,3.3,1,5)}if(level>=7)for(let x of [-1.6,1.6]){box(home,.9,2,.9,wall,x,2,0);cone(home,.65,1.25,roof,x,3.65,0,6)}}else{box(home,4.5,3,3.5,wall,0,1.5,0);cone(home,3.4,2,roof,0,4,0,4);box(home,.9,1.6,.12,mats.wood,0,.8,1.82);for(let x of [-2.1,2.1]){box(home,1.15,4,1.15,wall,x,2,0);cone(home,.9,1.8,roof,x,4.9,0,7);box(home,.45,.8,.12,mats.blue,x,2.2,.6);cone(home,.09,.5,mats.gold,x,6,0,5)}for(let x of [-.9,.9])box(home,.55,.85,.1,mats.blue,x,2.3,1.8);box(home,.08,1.1,.08,mats.gold,0,5.7,0);cone(home,.38,.55,mats.pink,.22,6,0,3)}
+// garden plot + flowers, always in front of home
+box(home,4.7,.12,1.9,material('#9a704f'),0,.04,3.8);box(home,4.4,.1,1.65,material('#8acb83'),0,.13,3.8);for(let i=0;i<8;i++){let x=-1.7+(i%4)*1.12,z=3.25+Math.floor(i/4)*.9;box(home,.1,.2,.1,material('#4b9c5f'),x,.27,z);ball(home,.15,material(['#f6a7c7','#f7d36c','#b8a5f4'][i%3]),x,.42,z)}box(home,1.5,.55,.12,mats.cream,0,1,2.55);box(home,1.35,.4,.05,mats.pink,0,1,2.63);ball(home,.16,mats.gold,0,1.55,2.68)}buildHome();
+// characters and pickups are simple clickable world targets
+const targets=[];function makePerson(name,kind,x,z,shirt,hair){let g=new T.Group();g.position.set(x,0,z);scene.add(g);box(g,.55,.85,.45,material(shirt),0,1.05,0);ball(g,.32,mats.skin,0,1.85,0);ball(g,.34,material(hair),0,1.98,-.06);for(let s of [-1,1])ball(g,.04,mats.dark,s*.11,1.88,.29);targets.push({name,kind,x,z,obj:g,active:true});return g}makePerson('Mimi the Market Keeper','market',2,-8,'#e8a4ba','#6e4a36');makePerson('Pip the Crafter','craft',-5,10,'#a995dc','#80523d');makePerson('Grandma Willow','story',-16,2,'#a9c6a0','#c4c2ca');targets.push({name:"Natasha's Home",kind:'home',x:-10,z:-8,obj:home,active:true});
+const state={coins:12,apples:0,flowers:0,wood:0,cloth:0,stars:0};let pickups=[];function pickup(kind,x,z){let color={apple:'#e95f69',flower:'#f4a6c5',wood:'#a96f4f',cloth:'#9f8add',star:'#f5c94f'}[kind],o=kind==='star'?addMesh(new T.OctahedronGeometry(.34),material(color)):ball(scene,.23,material(color),x,.45,z);o.position.set(x,kind==='star'?.8:.45,z);if(kind==='wood')o.scale.set(1.5,.45,.6);if(kind==='flower'){ball(o,.01,material('#f5c94f'),0,0,0)}const t={name:({apple:'Shiny apple',flower:'Pretty flower',wood:'Wood bundle',cloth:'Magic cloth',star:'Star treasure'})[kind],kind,x,z,obj:o,active:true};targets.push(t);pickups.push(t)}for(let [x,z] of [[-15,-11],[-14,-3],[-18,1],[-7,9],[-4,12],[12,-1],[15,5],[19,-4]])pickup('apple',x,z);for(let [x,z] of [[-14,-11],[-20,8],[20,14],[-9,16],[5,-20],[3,11]])pickup('flower',x,z);for(let [x,z] of [[-18,-5],[17,-11],[6,15],[-3,-20],[20,3]])pickup('star',x,z);pickup('wood',-12,12);pickup('wood',7,15);pickup('cloth',12,-11);pickup('cloth',-12,10);
+function updateUI(){ $('coins').textContent=state.coins;for(let k of ['apples','flowers','wood','cloth'])$(k).textContent=state[k];$('level').textContent=homeLevel+'/10';$('questText').textContent=state.apples>=3?'Lovely collecting! Visit Mimi at the market to trade apples for coins.':`Find shiny apples and flowers. Apples collected: ${state.apples}/3.`}
+let toastTimer;function toast(s){$('toast').textContent=s;$('toast').style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').style.display='none',2300)}
+function closeSheet(){$('shade').style.display='none'}function openSheet(title,html){const sheet=$('sheet');sheet.innerHTML='';const h=document.createElement('h2');h.textContent=title;sheet.appendChild(h);const content=document.createElement('div');content.innerHTML=html;sheet.appendChild(content);const actions=document.createElement('div');actions.className='actions';const back=document.createElement('button');back.textContent='Back to village';back.onclick=closeSheet;actions.appendChild(back);sheet.appendChild(actions);$('shade').style.display='flex'}$('shade').addEventListener('click',e=>{if(e.target===$('shade'))closeSheet()});
+function styleMenu(){openSheet('🎀 Princess dress-up',`<p>Choose a look just for Natasha!</p><label>Dress colour</label><input id="dressPick" type="color" value="${custom.dress}"><label>Hair colour</label><input id="hairPick" type="color" value="${custom.hair}"><label>Skin tone</label><select id="skinPick"><option value="#f2c7a6">Peach</option><option value="#d89a70">Warm tan</option><option value="#9b6347">Brown</option><option value="#f5ddc4">Light cream</option></select><div class="actions"><button id="wear" class="primary">✨ Wear this look</button></div>`);$('wear').onclick=()=>{custom.dress=$('dressPick').value;custom.hair=$('hairPick').value;custom.skin=$('skinPick').value;recolor();closeSheet();toast('A magical new look!')};}
+function market(){openSheet('🍓 Mimi’s Market',`<p>Trade what you find for coins. Choose what to sell!</p><div class="grid">${[['apples','🍎 Apple',3],['flowers','🌼 Flower',2],['wood','🪵 Wood',2],['cloth','🧵 Cloth',4]].map(([k,n,p])=>`<div class="item"><b>${n}</b><div>You have ${state[k]}</div><div>Sell for ${p} coins</div><button data-sell="${k}" class="primary">Sell one</button></div>`).join('')}</div>`);document.querySelectorAll('[data-sell]').forEach(b=>b.onclick=()=>{let k=b.dataset.sell,p={apples:3,flowers:2,wood:2,cloth:4}[k];if(state[k]<1){toast('Your basket is empty for that item.');return}state[k]--;state.coins+=p;updateUI();toast(`Sold one for ${p} coins!`);market()})}
+function crafting(){openSheet('🦊 Pip’s Crafting Corner',`<p>Turn your finds into lovely things to sell.</p><div class="grid"><div class="item"><b>🌷 Flower crown</b><div>2 flowers + 1 cloth</div><div>Earn 10 coins</div><button data-craft="crown" class="primary">Craft</button></div><div class="item"><b>🪴 Garden planter</b><div>3 wood + 1 flower</div><div>Earn 9 coins</div><button data-craft="planter">Craft</button></div></div>`);document.querySelectorAll('[data-craft]').forEach(b=>b.onclick=()=>{let t=b.dataset.craft,req=t==='crown'?{flowers:2,cloth:1}: {wood:3,flowers:1},earn=t==='crown'?10:9;if(!Object.entries(req).every(([k,v])=>state[k]>=v)){toast('Keep exploring to find more materials!');return}for(let [k,v] of Object.entries(req))state[k]-=v;state.coins+=earn;updateUI();toast('You crafted something lovely!');crafting()})}
+let buildSeconds=0,buildActive=false;const scaffold=new T.Group();scene.add(scaffold);function startUpgrade(){if(buildActive){toast('Your builders are already working!');return}if(homeLevel>=10){toast('Your princess castle is complete!');return}if(state.coins<8){toast('You need 8 coins. Trade some finds at the market!');return}state.coins-=8;updateUI();buildActive=true;buildSeconds=120;scaffold.clear();scaffold.position.copy(home.position);for(let x of [-2.5,2.5])for(let z of [-.3,2.4]){box(scaffold,.12,3.8,.12,mats.wood,x,1.8,z);box(scaffold,.12,.12,2.8,mats.wood,x,3,1)}box(scaffold,5.3,.12,.12,mats.wood,0,3,-.3);$('build').style.display='block';toast('Builders started! Explore while they work.')}function homeMenu(){openSheet('🏡 Natasha’s home',`<p>Grow your garden, improve your cottage and one day build a grand princess castle!</p><div class="item"><b>✨ Home upgrade ${homeLevel} → ${Math.min(10,homeLevel+1)}</b><div>Costs 8 coins • Takes 2 minutes</div><button id="upgrade" class="primary">Start builders</button></div><p>Keep exploring while the builders work. Each upgrade adds new details to your home.</p>`);$('upgrade').onclick=()=>{closeSheet();startUpgrade()}}
+function interact(t){if(!t||!t.active){toast('Tap a person, sparkle or home nearby.');return}if(t.kind==='home'){homeMenu();return}if(t.kind==='market'){market();return}if(t.kind==='craft'){crafting();return}if(t.kind==='story'){openSheet('🌳 Grandma Willow',`<p>“If you have 10 coins, you could spend some today or save them for a bigger dream. Saving and spending are both choices. Think about what matters most to you!”</p>`);return}if(['apple','flower','wood','cloth','star'].includes(t.kind)){t.active=false;scene.remove(t.obj);if(t.kind==='star'){state.stars++;state.coins+=2;toast('Star treasure! +2 coins!')}else{state[t.kind==='apple'?'apples':t.kind==='flower'?'flowers':t.kind]++;toast(t.name+' collected!')}updateUI();return}}
+// Screen tap selects nearest visible target under finger, or closest target in world if tap misses.
+const ray=new T.Raycaster(),ndc=new T.Vector2();function targetFromTap(e){const rect=renderer.domElement.getBoundingClientRect();ndc.x=((e.clientX-rect.left)/rect.width)*2-1;ndc.y=-((e.clientY-rect.top)/rect.height)*2+1;ray.setFromCamera(ndc,camera);let candidates=targets.filter(t=>t.active&&t.obj);let hits=[];for(let t of candidates){const list=[];t.obj.traverse(o=>{if(o.isMesh)list.push(o)});const h=ray.intersectObjects(list,false);if(h.length)hits.push({t,dist:h[0].distance})}hits.sort((a,b)=>a.dist-b.dist);if(hits.length)return hits[0].t;return null}
+let joy={x:0,y:0},joyId=null;const joyEl=$('joy'),nub=$('nub');function setJoy(e){const r=joyEl.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),max=40,len=Math.hypot(dx,dy),scale=len>max?max/len:1;joy.x=dx*scale/max;joy.y=dy*scale/max;nub.style.left=(36+dx*scale)+'px';nub.style.top=(36+dy*scale)+'px'}function resetJoy(){joy={x:0,y:0};joyId=null;nub.style.left='36px';nub.style.top='36px'}joyEl.addEventListener('pointerdown',e=>{e.preventDefault();joyId=e.pointerId;joyEl.setPointerCapture(e.pointerId);setJoy(e)});joyEl.addEventListener('pointermove',e=>{if(e.pointerId===joyId)setJoy(e)});joyEl.addEventListener('pointerup',resetJoy);joyEl.addEventListener('pointercancel',resetJoy);
+let camYaw=0,camHeight=5.3,camDist=7.2,camId=null,lastX=0,lastY=0,moved=false;renderer.domElement.addEventListener('pointerdown',e=>{if($('shade').style.display==='flex')return;camId=e.pointerId;lastX=e.clientX;lastY=e.clientY;moved=false;renderer.domElement.setPointerCapture(e.pointerId)});renderer.domElement.addEventListener('pointermove',e=>{if(e.pointerId!==camId)return;let dx=e.clientX-lastX,dy=e.clientY-lastY;if(Math.abs(dx)+Math.abs(dy)>4)moved=true;if(moved){camYaw-=dx*.008;camHeight=Math.max(3.8,Math.min(8.5,camHeight+dy*.018))}lastX=e.clientX;lastY=e.clientY});renderer.domElement.addEventListener('pointerup',e=>{if(e.pointerId!==camId)return;camId=null;if(!moved){const t=targetFromTap(e);if(t){const d=Math.hypot(t.x-player.position.x,t.z-player.position.z);if(d<5.5)interact(t);else toast('Walk a little closer, Princess!')}}});renderer.domElement.addEventListener('pointercancel',()=>camId=null);renderer.domElement.addEventListener('contextmenu',e=>e.preventDefault());$('action').addEventListener('click',()=>{let near=targets.filter(t=>t.active).map(t=>({...t,d:Math.hypot(t.x-player.position.x,t.z-player.position.z)})).filter(t=>t.d<4.5).sort((a,b)=>a.d-b.d)[0];if(near)interact(near);else toast('Walk closer, then tap a person, sparkle or home!')});$('styleBtn').addEventListener('click',styleMenu);
+let last=performance.now(),walk=0;function animate(now){requestAnimationFrame(animate);let dt=Math.min((now-last)/1000,.035);last=now;if($('shade').style.display!=='flex'){let sx=joy.x,forward=-joy.y,len=Math.hypot(sx,forward);if(len>1){sx/=len;forward/=len}if(len>.08){let fx=-Math.sin(camYaw),fz=-Math.cos(camYaw),rx=Math.cos(camYaw),rz=-Math.sin(camYaw),dx=rx*sx+fx*forward,dz=rz*sx+fz*forward;player.position.x+=dx*4.5*dt;player.position.z+=dz*4.5*dt;player.rotation.y=Math.atan2(dx,dz);walk+=dt*9;skirt.rotation.z=Math.sin(walk)*.05}else skirt.rotation.z*=.8}player.position.x=Math.max(-28,Math.min(28,player.position.x));player.position.z=Math.max(-28,Math.min(28,player.position.z));let p=player.position;camera.position.lerp(new T.Vector3(p.x+Math.sin(camYaw)*camDist,camHeight,p.z+Math.cos(camYaw)*camDist),.13);camera.lookAt(p.x,1.1,p.z);for(let t of pickups)if(t.active){t.obj.position.y=(t.kind==='star'?.8:.45)+Math.sin(now/450+t.x)*.1;t.obj.rotation.y+=dt*.6}if(buildActive){buildSeconds-=dt;let left=Math.max(0,buildSeconds);$('timer').textContent=`${String(Math.floor(left/60)).padStart(2,'0')}:${String(Math.floor(left%60)).padStart(2,'0')}`;$('buildbar').style.width=((120-left)/120*100)+'%';scaffold.rotation.y=Math.sin(now/600)*.01;if(left<=0){buildActive=false;homeLevel++;buildHome();scaffold.clear();$('build').style.display='none';state.stars++;updateUI();toast(homeLevel>=10?'✨ The Princess Castle is complete!':'✨ Home upgrade complete! Look at your new home!')}}renderer.render(scene,camera)}requestAnimationFrame(animate);window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.35));renderer.setSize(innerWidth,innerHeight)});updateUI();
 })();
-</script>
-</body></html>
+</script></body></html>
