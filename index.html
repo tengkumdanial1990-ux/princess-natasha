@@ -51,6 +51,10 @@ label{display:block;font-weight:800;margin:12px 0 5px}select,input[type=color]{w
 </div>
 <div id="quest" class="panel"><h3>✨ Today's little adventure</h3><p id="questText">Hello, Natasha! Find the shiny apples and bring them to the village market.</p><p class="tiny" id="questProgress">Collect 3 apples • Then visit the market stall</p></div>
 <div id="inventory" class="panel"><strong>🎒 Your basket</strong><div class="line"><span>🍎 Apples</span><b id="apples">0</b></div><div class="line"><span>🪵 Wood</span><b id="wood">0</b></div><div class="line"><span>🌼 Flowers</span><b id="flowers">0</b></div><div class="line"><span>🧵 Cloth</span><b id="cloth">0</b></div><div class="line"><span>🏡 Home level</span><b id="homeLevel">1</b></div></div>
+<div id="constructionHud" class="panel" style="display:none;position:fixed;left:50%;bottom:74px;transform:translateX(-50%);width:min(360px,86vw);padding:12px 15px;z-index:5">
+ <div style="display:flex;justify-content:space-between;gap:10px;font-weight:900"><span>🛠️ Builders at work!</span><span id="buildTimer">02:00</span></div>
+ <div style="font-size:12px;margin:5px 0 8px">Natasha's home is getting a magical makeover. Go explore while they work!</div>
+ <div style="height:10px;background:#eadfeb;border-radius:8px;overflow:hidden"><div id="buildBar" style="height:100%;width:0%;background:linear-gradient(90deg,#f3a8c2,#a28ae5);transition:width .2s"></div></div>
 <div id="help" class="panel">Move: WASD / arrows • Drag mouse to look around • On touch: joystick to move, drag world to look • Walk up to a character or sparkle and press <b>E</b> / tap INTERACT.</div>
 <div id="toast" class="panel"></div>
 <div id="touchpad"><div class="pad"></div><div id="stick"></div></div><button id="interaction">✨<br>INTERACT</button>
@@ -87,7 +91,87 @@ function cottage(x,z,wall,roofColor,scale=1){
  for(const dx of [-1.15,1.15]){box(.62*scale,.7*scale,.1*scale,mat('#a8d9e7'),x+dx*scale,1.45*scale,z+1.79*scale);box(.08*scale,.8*scale,.13*scale,mat('#fff3d5'),x+dx*scale,1.45*scale,z+1.86*scale);box(.7*scale,.07*scale,.13*scale,mat('#fff3d5'),x+dx*scale,1.45*scale,z+1.86*scale)}
  box(.95*scale,.13*scale,.55*scale,mat('#f5d5a0'),x,0,z+2.05*scale);
 }
-cottage(-6,-5,'#f4d4ad','#d9848d',1.1);cottage(8,-5,'#d7c6f5','#7e9ed7',1.1);cottage(-13,5,'#f3b9c7','#dca45d',.9);cottage(14,-13,'#c2e5ca','#d9848d',.85);
+cottage(8,-5,'#d7c6f5','#7e9ed7',1.1);cottage(-13,5,'#f3b9c7','#dca45d',.9);cottage(14,-13,'#c2e5ca','#d9848d',.85);
+// Natasha's own home is a distinct, upgradeable landmark (not a generic NPC cottage).
+const homeGroup=new THREE.Group();scene.add(homeGroup);homeGroup.position.set(-6,0,-5);
+let constructionGroup=null, constructionRemaining=0, constructionTotal=120, constructionActive=false, constructionPhase=0;
+function localBox(group,w,h,d,material,x,y,z){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;group.add(o);return o}
+function localCone(group,r,h,material,x,y,z,segments=4){const o=new THREE.Mesh(new THREE.ConeGeometry(r,h,segments),material);o.position.set(x,y,z);o.castShadow=true;group.add(o);return o}
+function buildHome(level){
+ while(homeGroup.children.length) {const o=homeGroup.children.pop(); if(o.geometry)o.geometry.dispose(); if(o.material&&o.material.dispose)o.material.dispose();}
+ const castle=level>=10, tiers=Math.min(level,9);
+ const wallColors=['#f5d6bd','#f4c9df','#e8c7f7','#f7d3a3','#efbad4','#d9c5ff','#f6d4bc','#f2b6d0','#e6c9ff'];
+ const wall=mat(castle?'#f7d8f0':wallColors[(tiers-1)%wallColors.length]);
+ const roof=mat(castle?'#8d75d4':['#d9848d','#b97bd1','#dc8da7','#e5a35c','#ca7bb5','#8c9ee1','#db8fbb','#b48cde','#e8a0b8'][tiers-1]);
+ const gold=mat('#f6d16d',.45), trim=mat('#fff1e8'), door=mat('#99624e'), windowMat=mat('#9de4ef',.35);
+ if(!castle){
+   const extra=.0+Math.floor((level-1)/3)*.45;
+   localBox(homeGroup,4.2+extra,2.6+extra*.25,3.6,wall,0,1.25,0);
+   let r=localCone(homeGroup,3.1+extra*.3,1.9+extra*.15,roof,0,3.45+extra*.25,0,4);r.rotation.y=Math.PI/4;
+   localBox(homeGroup,.82,1.45,.12,door,0,.73,1.86);
+   for(const x of [-1.2,1.2]){localBox(homeGroup,.68,.72,.1,windowMat,x,1.55,1.86);localBox(homeGroup,.08,.78,.14,trim,x,1.55,1.93);localBox(homeGroup,.7,.07,.14,trim,x,1.55,1.93)}
+   localBox(homeGroup,1.0,.13,.55,trim,0,0,2.12);
+   // visible upgrade details: porch, chimney, balcony, flowers and gold trim appear as levels rise
+   if(level>=2){localBox(homeGroup,2.4,.18,1.0,mat('#c28d68'),0,.12,2.2);for(let x of [-1,0,1])localBox(homeGroup,.12,.9,.12,trim,x,.55,2.55)}
+   if(level>=3){localBox(homeGroup,.55,1.5,.55,mat('#d6b4a0'),1.5,3.35,-.65);localBox(homeGroup,.7,.12,.7,roof,1.5,4.12,-.65)}
+   if(level>=4){localBox(homeGroup,2.4,.16,.65,gold,0,2.45,1.89);localBox(homeGroup,2.5,.12,.8,mat('#f7d0df'),0,2.05,2.12)}
+   if(level>=5){for(let x of [-1.6,1.6]){localBox(homeGroup,.25,.75,.25,trim,x,2.75,1.55);localCone(homeGroup,.55,.85,roof,x,3.55,1.55,6)}}
+   if(level>=6){localBox(homeGroup,1.4,.18,1.0,mat('#e7b9a1'),0,2.9,-.2);for(let x of [-.6,0,.6])localBox(homeGroup,.12,.65,.12,gold,x,3.25,.25)}
+   if(level>=7){localCone(homeGroup,.55,.9,roof,-1.65,3.55,-.7,5);localCone(homeGroup,.55,.9,roof,1.65,3.55,-.7,5)}
+   if(level>=8){for(let x of [-1.65,1.65]){localBox(homeGroup,.08,.9,.08,gold,x,2.1,1.9);sphere(.12,gold,homeGroup.position.x+x,.0,homeGroup.position.z+2.0,8)}}
+   if(level>=9){localBox(homeGroup,2.8,.12,.8,gold,0,4.05,0);localCone(homeGroup,.4,.65,gold,0,4.55,0,5)}
+ } else {
+   // Level 10: princess castle with central keep, side towers, pennants and gold details.
+   localBox(homeGroup,4.6,3.2,3.7,mat('#f5d9f2'),0,1.6,0);
+   localCone(homeGroup,3.5,2.0,mat('#8b78d5'),0,4.15,0,4).rotation.y=Math.PI/4;
+   localBox(homeGroup,.95,1.7,.14,door,0,.85,1.92);
+   localBox(homeGroup,1.2,.16,.8,mat('#f3c9e2'),0,.12,2.25);
+   for(const x of [-2.1,2.1]){
+     localBox(homeGroup,1.25,4.2,1.3,mat('#f8e2f6'),x,2.1,0);
+     localCone(homeGroup,.95,1.8,mat('#8b78d5'),x,5.1,0,8);
+     localBox(homeGroup,.55,1.05,.12,windowMat,x,2.35,.68);
+     localBox(homeGroup,.12,1.12,.14,gold,x,2.35,.76);
+     localCone(homeGroup,.08,.6,gold,x,6.2,0,5);
+   }
+   for(const x of [-.9,.9]){localBox(homeGroup,.62,.95,.12,windowMat,x,2.45,1.92);localBox(homeGroup,.08,1.0,.14,gold,x,2.45,2.0)}
+   localBox(homeGroup,1.8,.15,.8,gold,0,3.2,2.05);
+   const flag=localBox(homeGroup,.08,1.1,.08,gold,0,6.2,0);
+   const pennant=new THREE.Mesh(new THREE.ConeGeometry(.38,.65,3),mat('#ff9fc8'));pennant.position.set(.2,6.35,0);pennant.rotation.z=-Math.PI/2;homeGroup.add(pennant);
+ }
+ // Clearly labelled garden plot at the front of the home.
+ localBox(homeGroup,4.7,.14,2.0,mat('#9a704f'),0,.05,4.0);
+ localBox(homeGroup,4.4,.12,1.7,mat('#8acb83'),0,.14,4.0);
+ for(let i=0;i<8;i++){const x=-1.75+(i%4)*1.16,z=3.45+Math.floor(i/4)*.95;localBox(homeGroup,.18,.22,.18,mat('#4b9c5f'),x,.29,z);sphere(.17,mat(['#f6a7c7','#f7d36c','#b8a5f4'][i%3]),homeGroup.position.x+x,.5,homeGroup.position.z+z,8)}
+ // Sign makes it obvious this is Natasha's home.
+ localBox(homeGroup,1.55,.65,.12,mat('#fff0d8'),0,1.0,2.75);
+ localBox(homeGroup,1.43,.52,.05,mat('#edbad2'),0,1.0,2.83);
+ // small decorative heart / gold star above the sign
+ const heart=new THREE.Mesh(new THREE.OctahedronGeometry(.19),gold);heart.position.set(0,1.55,2.85);homeGroup.add(heart);
+}
+buildHome(1);
+function beginConstruction(){
+ if(constructionActive){toast('The builders are already working on Natasha’s home!');return}
+ if(state.home>=10){toast('Natasha’s princess castle is complete!');return}
+ if(state.coins<8){toast('You need 8 coins to start the next home upgrade. Sell a few things or save up!');return}
+ state.coins-=8;refresh();constructionActive=true;constructionRemaining=120;constructionTotal=120;
+ constructionGroup=new THREE.Group();scene.add(constructionGroup);constructionGroup.position.copy(homeGroup.position);
+ const wood=mat('#a8754e'),cloth=mat('#f7d2e2'),gold=mat('#f6d16d');
+ // scaffold poles around the cottage; animated hammer sparks and a sign.
+ for(const x of [-2.8,2.8])for(const z of [-.3,2.5]){localBox(constructionGroup,.12,4.1,.12,wood,x,2,z);localBox(constructionGroup,.15,.12,3.1,wood,x,3.2,1.1)}
+ localBox(constructionGroup,5.8,.14,.12,wood,0,3.25,-.3);
+ localBox(constructionGroup,2.0,.65,.12,cloth,0,3.7,2.75);
+ const label=localBox(constructionGroup,1.8,.48,.05,mat('#fff4dc'),0,3.7,2.84);
+ const cones=[];
+ for(let i=0;i<4;i++){let c=new THREE.Mesh(new THREE.ConeGeometry(.22,.5,8),mat('#f5c95d'));c.position.set(-1.2+i*.8,.35,3.1);constructionGroup.add(c);cones.push(c)}
+ constructionGroup.userData={cones,elapsed:0};
+ $('constructionHud').style.display='block';toast('Construction started! Your builders are upgrading the home. You can keep exploring!');
+}
+function finishConstruction(){
+ constructionActive=false;if(constructionGroup){scene.remove(constructionGroup);constructionGroup=null}
+ state.home++;state.stars+=2;buildHome(state.home);refresh();$('constructionHud').style.display='none';
+ toast(state.home>=10?'✨ The Princess Castle is complete! Welcome home, Princess Natasha!':'✨ Home upgrade complete! Look at the new details and garden!');
+}
+
 function tree(x,z,s=1){cylinder(.25*s,.38*s,1.7*s,mat('#9a684b'),x,.55*s,z,8);sphere(1.1*s,mat('#65b77b'),x,.95*s,z,10);sphere(.8*s,mat('#8bd18a'),x+.55*s,1.35*s,z-.1*s,10);sphere(.75*s,mat('#4f9e71'),x-.55*s,1.25*s,z+.15*s,10);sphere(.2*s,mat('#f4c8da'),x+.2*s,1.9*s,z,8)}
 for(const [x,z,s] of [[-19,-8,1.3],[-22,4,1.2],[-18,12,1.3],[-10,14,1.1],[18,1,1.2],[22,10,1.35],[19,-19,1.1],[3,16,1.25],[-5,-17,1],[24,-8,1.3],[5,-22,1.1],[-15,-22,1.1]])tree(x,z,s);
 function flower(x,z,c){cylinder(.035,.045,.35,mat('#4d9e62'),x,.16,z,5);sphere(.13,mat(c),x,.35,z,8);sphere(.08,mat('#f6d56e'),x,.42,z,8)}
@@ -154,7 +238,16 @@ function person(x,z,shirt,hairColor,scale=1,isPlayer=false){
  }
  return {group:g,legs,arms};
 }
-const player=person(0,5,'#b6a0ef','#70402f',1,true);player.group.scale.setScalar(1.0);
+const player=person(0,5,'#f08db8','#e6b95e',1,true);player.group.scale.setScalar(1.0);
+ // Princess styling: tiara, flowing pink cape, long blonde hair accents and a little wand.
+ const princessGold=mat('#f7d46e',.35), princessPink=mat('#ff9fc8',.5), princessLilac=mat('#d9c6ff',.45);
+ function attachPrincessPart(geo,material,x,y,z){const o=new THREE.Mesh(geo,material);o.position.set(x,y,z);o.castShadow=true;player.group.add(o);return o}
+ const tiara=attachPrincessPart(new THREE.TorusGeometry(.24,.045,7,18),princessGold,0,2.28,.02);tiara.scale.set(1,.55,1);
+ const crownTop=attachPrincessPart(new THREE.ConeGeometry(.22,.32,5),princessGold,0,2.47,.02);crownTop.rotation.y=Math.PI/5;
+ const gem=attachPrincessPart(new THREE.SphereGeometry(.07,10,8),mat('#ff6fa8',.35),0,2.43,.24);
+ const cape=attachPrincessPart(new THREE.ConeGeometry(.48,.85,12),princessPink,0,.9,-.35);cape.rotation.x=Math.PI;
+ const wandStick=attachPrincessPart(new THREE.CylinderGeometry(.025,.035,.65,8),princessGold,.52,1.05,.04);wandStick.rotation.z=-.2;
+ const wandStar=attachPrincessPart(new THREE.OctahedronGeometry(.13),princessGold,.58,1.42,.04);
 let custom={hair:'#8b553f',dress:'#ad92df',skin:'#f2c7a6',hat:'none'};
 const villagers=[
  {name:'Mimi the Market Keeper',kind:'market',x:1,z:-5,person:person(1,-5,'#e7a4c2','#74442f',1.05),desc:'I buy your lovely things and sell useful supplies!'},
@@ -191,10 +284,19 @@ function market(){modal('🍓 Mimi’s Market','<p>Welcome, Natasha! Selling thi
 window.gameSell=doSell;
 function crafting(){modal('🦊 Pip’s Crafting Corner','<p>Let’s turn your things into something useful! Crafting costs materials, but a crafted item can be worth more.</p><div class="itemgrid"><div class="item"><b>🌷 Flower crown</b><small>Needs 2 flowers + 1 cloth. Value: 10 coins.</small><button class="primary" onclick="window.craft(&#39;crown&#39;)">Craft crown</button></div><div class="item"><b>🪴 Garden planter</b><small>Needs 3 wood + 1 flower. Value: 9 coins.</small><button onclick="window.craft(&#39;planter&#39;)">Craft planter</button></div><div class="item"><b>🧸 Patchwork teddy</b><small>Needs 2 cloth + 1 flower. Value: 12 coins.</small><button class="pink" onclick="window.craft(&#39;teddy&#39;)">Craft teddy</button></div></div><p><b>Money tip:</b> Materials have value too. Compare what you spend with what you earn.</p>',[])}
 window.craft=(type)=>{let req={crown:{flowers:2,cloth:1,cost:10,name:'flower crown'},planter:{wood:3,flowers:1,cost:9,name:'garden planter'},teddy:{cloth:2,flowers:1,cost:12,name:'patchwork teddy'}}[type];let ok=Object.keys(req).filter(k=>['wood','flowers','cloth'].includes(k)).every(k=>state[k]>=(req[k]||0));if(!ok){toast('Not quite enough materials yet. Keep exploring!');return}for(let k of ['wood','flowers','cloth'])state[k]-=req[k]||0;state.coins+=req.cost;state.crafts++;state.stars++;refresh();toast('You crafted a '+req.name+' and earned '+req.cost+' coins!');crafting()};
-function home(){modal('🏡 Your Cozy Cottage','<p>Make your home more magical. Each upgrade costs coins, so decide whether you want to spend now or save for later.</p><div class="itemgrid"><div class="item"><b>🌼 Flower garden</b><small>Costs 8 coins. Home level +1.</small><button class="primary" onclick="window.upgradeHome()">Upgrade garden</button></div><div class="item"><b>🐈 Adopt a little pet</b><small>Costs 10 coins. A friend to follow you around!</small><button class="pink" onclick="window.adoptPet()">Adopt pet</button></div><div class="item"><b>🐷 Piggy bank</b><small>Move 5 coins into savings. They stay safe for your next big goal.</small><button onclick="window.saveCoins()">Save 5 coins</button></div></div><p><b>Money tip:</b> Spending can make your home lovely. Saving helps you prepare for something bigger.</p>',[])}
-window.upgradeHome=()=>{if(state.coins<8){toast('You need 8 coins. Sell some finds or save up!');return}state.coins-=8;state.home++;state.stars++;refresh();for(let i=0;i<state.home;i++)flower(-8+i*.7,-7,'#f5b8cb');toast('Home upgraded! Your village is getting cosier.');home()};
-window.adoptPet=()=>{if(state.coins<10){toast('A little more saving! You need 10 coins to adopt a pet.');return}state.coins-=10;state.pet=true;refresh();toast('Meow! A tiny friend has joined your adventure.');home()};
-window.saveCoins=()=>{if(state.coins<5){toast('You need 5 coins to put away.');return}state.coins-=5;state.saved+=5;state.stars++;refresh();toast('Five coins saved! Saving helps you reach bigger goals.');home()};
+function home(){const remaining=10-state.home;modal('🏡 Princess Natasha’s Home',
+ '<p>This is <b>your</b> home, Princess Natasha! Every upgrade adds visible details to the cottage and garden. After 10 upgrades, it becomes a princess castle. Each construction takes <b>2 minutes</b>, but you can keep walking around and collecting things while the builders work.</p>'+
+ '<div class="itemgrid"><div class="item"><b>🌷 Home upgrade '+(state.home+1)+'/10</b><small>Costs 8 coins. Adds visible cottage details and improves the garden. Time: 2 minutes.</small><button class="primary" '+(constructionActive||state.home>=10?'disabled':'')+' onclick="window.startHomeUpgrade()">Start construction</button></div>'+
+ '<div class="item"><b>🌸 Garden makeover</b><small>Your garden is the green flower plot right in front of the house. Each home upgrade adds more flowers and decorations.</small><button class="pink" onclick="window.showGarden()">Show me the garden</button></div>'+
+ '<div class="item"><b>🐷 Save for the castle</b><small>Keep coins for later upgrades instead of spending them all at once.</small><button onclick="window.saveCoins()">Save 5 coins</button></div></div>'+
+ '<p><b>Progress:</b> '+state.home+'/10 upgrades complete. '+(state.home>=10?'Your princess castle is ready!':'Only '+remaining+' more upgrade'+(remaining===1?'':'s')+' until the castle!')+'</p>'+
+ (constructionActive?'<p><b>Construction is already underway.</b> Time remaining: <span id="menuBuildTimer">'+formatTime(constructionRemaining)+'</span></p>':''),
+ []);
+}
+function formatTime(sec){sec=Math.max(0,Math.ceil(sec));return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0')}
+window.startHomeUpgrade=()=>{closeModal();beginConstruction()};
+window.showGarden=()=>{toast('Look for the green flower plot directly in front of Natasha’s home!');closeModal()};
+
 function story(){modal('🌳 Grandma Willow’s Story','<p>“Imagine you have 10 coins,” Grandma says. “You could spend 6 on a toy and have 4 left. Or save all 10 toward a bigger treasure.”</p><p>Which choice feels right today? There is no wrong answer — just different things you can do with your money.</p><div class="itemgrid"><div class="item"><b>🎁 Spend some</b><small>Enjoy something now and keep a little back.</small><button class="pink" onclick="window.storyChoice(&#39;spend&#39;)">Choose spending</button></div><div class="item"><b>🐷 Save for later</b><small>Wait a little longer for a bigger goal.</small><button class="primary" onclick="window.storyChoice(&#39;save&#39;)">Choose saving</button></div></div>',[])}
 window.storyChoice=(choice)=>{state.stars++;refresh();toast(choice==='save'?'Wise planning! Saving can help with bigger dreams.':'Enjoying a treat is fun — it helps to check what you have left!');story()};
 function styleMenu(){modal('🎀 Make your character yours','<p>Pick a look for your little adventurer.</p><label>Dress colour</label><input id="dressColor" type="color" value="'+custom.dress+'"><label>Hair colour</label><input id="hairColor" type="color" value="'+custom.hair+'"><label>Skin tone</label><select id="skinColor"><option value="#f2c7a6">Peach</option><option value="#d89a70">Warm tan</option><option value="#9b6347">Brown</option><option value="#f5ddc4">Light cream</option></select><label>Head accessory</label><select id="hatStyle"><option value="none">No accessory</option><option value="flower">Flower crown</option><option value="crown">Golden crown</option></select><div class="actions"><button class="primary" onclick="window.applyStyle()">Wear this look</button></div>',[])}
@@ -254,6 +356,18 @@ function animate(now){requestAnimationFrame(animate);let dt=Math.min((now-last)/
  villagers.forEach(v=>{if(v.person&&v.person.group){v.person.group.rotation.y=Math.sin(now/1400+v.x)*.08}});
  if(state.pet&&!window.petObject){const pet=fox(p.x+1,p.z+1);pet.scale.setScalar(.45);window.petObject=pet}
  if(window.petObject&&state.pet){window.petObject.position.lerp(new THREE.Vector3(p.x-1,0,p.z+1),.04)}
+ if(constructionActive){
+   constructionRemaining=Math.max(0,constructionRemaining-dt);
+   if(constructionGroup){
+     constructionPhase+=dt*5;
+     constructionGroup.userData.cones.forEach((c,i)=>{c.position.y=.35+Math.abs(Math.sin(constructionPhase+i*1.4))*.45;c.rotation.y+=dt*2});
+     constructionGroup.rotation.y=Math.sin(constructionPhase*.25)*.015;
+   }
+   $('buildTimer').textContent=formatTime(constructionRemaining);
+   $('buildBar').style.width=((constructionTotal-constructionRemaining)/constructionTotal*100)+'%';
+   const mt=document.getElementById('menuBuildTimer');if(mt)mt.textContent=formatTime(constructionRemaining);
+   if(constructionRemaining<=0)finishConstruction();
+ }
  renderer.render(scene,camera)}
 requestAnimationFrame(animate);
 window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
